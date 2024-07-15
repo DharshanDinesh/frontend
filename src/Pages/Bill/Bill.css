@@ -1,0 +1,30 @@
+.bill_container {
+    margin: 1.5rem;
+}
+
+.bill_container_title {
+    margin-bottom: 1rem;
+    font-size: 2rem;
+}
+
+.bill_form_field_label {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.bill_container_divider_title {
+    font-weight: 500;
+    font-size: 1.25rem;
+    color: #001529 !important
+}
+
+.bill_container_section {
+    border: 1px solid #9c9c9c;
+    border-radius: 1.4rem;
+    padding: 0.5rem 1.5rem 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.bill_container_divider_container {
+    margin: 0.5rem 0rem !important;
+}
