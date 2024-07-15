@@ -17,7 +17,9 @@ export default defineConfig({
             return id.toString().split('node_modules/')[1].split('/')[0].toString();
           }
         }
-      }
-    }
+      },
+      external: ['@tanstack/react-query'], // Externalize react-query
+    },
+    chunkSizeWarningLimit: 1500, // Set the chunk size limit to 1500 KB (1.5 MB)
   }
 })
