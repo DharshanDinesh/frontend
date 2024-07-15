@@ -2,9 +2,13 @@
 import { Container } from "./Components/Container/Container";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
-import { Bill } from "./Pages/Bill/Bill";
-import { Dashboard } from "./Pages/Dashboard/Dashboard";
-import DailyIncomeExpenseCalculator from "./Pages/Dashboard/dd";
+import { lazy, Suspense } from "react";
+
+// import { Bill } from "./Pages/Bill/Bill";
+// import { Dashboard } from "./Pages/Dashboard/Dashboard";
+
+// const Bill = lazy(() => import("./Pages/Bill/Bill"));
+// const Dashboard = lazy(() => import("./Pages/Dashboard/Dashboard"));
 
 const router = createBrowserRouter([
   {
@@ -13,15 +17,21 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <DailyIncomeExpenseCalculator />,
+        element: <>dsfa</>,
       },
       {
         path: "/bill",
-        element: <Bill />,
+        lazy: async () => {
+          let { Bill } = await import("./Pages/Bill/Bill");
+          return { Component: Bill };
+        },
       },
       {
         path: "/dashboard",
-        element: <Dashboard />,
+        lazy: async () => {
+          let { Dashboard } = await import("./Pages/Dashboard/Dashboard");
+          return { Component: Dashboard };
+        },
       },
     ],
   },

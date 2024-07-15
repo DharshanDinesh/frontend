@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App.jsx";
 import { ContextProvider } from "./Provider.jsx";
@@ -13,10 +13,12 @@ const queryClient = new QueryClient({
 });
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <ContextProvider>
-        <App />
-      </ContextProvider>
-    </QueryClientProvider>
+    <Suspense fallback={<h1>loading</h1>}>
+      <QueryClientProvider client={queryClient}>
+        <ContextProvider>
+          <App />
+        </ContextProvider>
+      </QueryClientProvider>
+    </Suspense>
   </React.StrictMode>
 );
