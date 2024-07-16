@@ -8,6 +8,10 @@ export default defineConfig({
     host: '0.0.0.0',
     port: parseInt(import.meta.env.VITE_PORT) || 3000,
   },
+  define: {
+    // eslint-disable-next-line no-undef
+    'process.env': process.env,
+  },
   build: {
     rollupOptions: {
       output: {
