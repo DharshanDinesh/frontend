@@ -29,11 +29,11 @@ export function Bill() {
   });
   const sourceInfo = useQuery({
     queryKey: ["source"],
-    queryFn: () => helperApi("currency"),
+    queryFn: () => helperApi("source"),
   });
   const hotelInfo = useQuery({
     queryKey: ["hotel"],
-    queryFn: () => helperApi("currency"),
+    queryFn: () => helperApi("hotel"),
   });
 
   function findOptions(key) {
