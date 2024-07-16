@@ -2,13 +2,6 @@
 import { Container } from "./Components/Container/Container";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
-import { lazy, Suspense } from "react";
-
-// import { Bill } from "./Pages/Bill/Bill";
-// import { Dashboard } from "./Pages/Dashboard/Dashboard";
-
-// const Bill = lazy(() => import("./Pages/Bill/Bill"));
-// const Dashboard = lazy(() => import("./Pages/Dashboard/Dashboard"));
 
 const router = createBrowserRouter([
   {

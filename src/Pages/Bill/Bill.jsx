@@ -15,7 +15,7 @@ import "./Bill.css";
 import dayjs from "dayjs";
 import { fields, filedContainers } from "../../Utils/constant";
 import axios from "axios";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { helperApi } from "../../Utils/API/helperAPI";
 import { Loader } from "../../Components/Loader/Loader";
 
@@ -23,9 +23,18 @@ export function Bill() {
   const [formFields, setFiledProps] = useState(fields);
   const [isSubmitEnabled, enableSubmit] = useState(false);
 
-  const currencyInfo = useQuery("currency", () => helperApi("currency"));
-  const sourceInfo = useQuery("source", () => helperApi("source"));
-  const hotelInfo = useQuery("hotel", () => helperApi("hotel"));
+  const currencyInfo = useQuery({
+    queryKey: ["currency"],
+    queryFn: () => helperApi("currency"),
+  });
+  const sourceInfo = useQuery({
+    queryKey: ["source"],
+    queryFn: () => helperApi("currency"),
+  });
+  const hotelInfo = useQuery({
+    queryKey: ["hotel"],
+    queryFn: () => helperApi("currency"),
+  });
 
   function findOptions(key) {
     if (key === "Income_From_(Stay_Name)" && hotelInfo.isSuccess) {

@@ -4,7 +4,7 @@ import * as XLSX from "xlsx";
 import dayjs from "dayjs";
 import { fields } from "../../Utils/constant";
 import { DatePicker } from "antd";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { helperApi } from "../../Utils/API/helperAPI";
 
 export function Dashboard() {
@@ -15,11 +15,20 @@ export function Dashboard() {
   const [filter3, setFilter3] = useState("");
   const [dateRange, setDateRange] = useState([null, null]);
 
-  const sourceInfo = useQuery("source", () => helperApi("source"));
-  const hotelInfo = useQuery("hotel", () => helperApi("hotel"));
-  const billInfo = useQuery("bill", () => helperApi("bill"), {
+  const sourceInfo = useQuery({
+    queryKey: ["source"],
+    queryFn: () => helperApi("source"),
+  });
+  const hotelInfo = useQuery({
+    queryKey: ["hotel"],
+    queryFn: () => helperApi("hotel"),
+  });
+  const billInfo = useQuery({
+    queryKey: ["bill"],
+    queryFn: () => helperApi("bill"),
     initialData: {},
   });
+
   const orderColumns = (data, columnOrder) => {
     return data?.map((item) => {
       const orderedItem = {};
