@@ -6,8 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: '0.0.0.0',
-    // eslint-disable-next-line no-undef
-    port: process.env.PORT || 3000,
+    port: parseInt(import.meta.env.VITE_PORT) || 3000,
   },
   build: {
     rollupOptions: {
