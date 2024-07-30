@@ -10,13 +10,21 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <>dsfa</>,
+        element: <></>,
       },
       {
-        path: "/bill",
+        path: "/income",
         lazy: async () => {
           let { Bill } = await import("./Pages/Bill/Bill");
           return { Component: Bill };
+        },
+      },
+
+      {
+        path: "/expense",
+        lazy: async () => {
+          let { Expense } = await import("./Pages/Expense/Expense");
+          return { Component: Expense };
         },
       },
       {

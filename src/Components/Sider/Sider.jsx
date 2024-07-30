@@ -1,8 +1,9 @@
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import {
-  UploadOutlined,
+  DollarOutlined,
   UserOutlined,
-  VideoCameraOutlined,
+  ShoppingCartOutlined,
+  DashboardOutlined,
 } from "@ant-design/icons";
 import { Menu, Layout } from "antd";
 import { ContextStore } from "../../Provider";
@@ -37,13 +38,18 @@ export function SideBar() {
             label: "Home",
           },
           {
-            key: "bill",
-            icon: <UploadOutlined />,
-            label: "Bill",
+            key: "income",
+            icon: <DollarOutlined />,
+            label: "Income",
+          },
+          {
+            key: "expense",
+            icon: <ShoppingCartOutlined />,
+            label: "Expense",
           },
           {
             key: "dashboard",
-            icon: <VideoCameraOutlined />,
+            icon: <DashboardOutlined />,
             label: "Dashboard",
           },
         ]}

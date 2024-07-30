@@ -11,48 +11,22 @@ import {
   Row,
   Select,
 } from "antd";
-import { useEffect, useState } from "react";
-import "./Bill.css";
+import { useState } from "react";
+import "./expense.css";
 import dayjs from "dayjs";
-import { incomeFields } from "../../Utils/constant";
+import { expenseFileds } from "../../Utils/constant";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
-import {
-  calculateTotal,
-  calculateTotalForGST,
-  helperApi,
-  updateObjectInArray,
-} from "../../Utils/API/helperAPI";
+import { helperApi, updateObjectInArray } from "../../Utils/API/helperAPI";
 import { Loader } from "../../Components/Loader/Loader";
 
-export function Bill() {
+export function Expense() {
   const [form] = Form.useForm();
 
-  const [bookingDetails, setBookingDetials] = useState(
-    incomeFields.bookingDetails
-  );
-  const [amountDetails, setAmountDetails] = useState(
-    incomeFields.amountDetails
-  );
-  const [accountDetails, setAccountDetails] = useState(
-    incomeFields.accountDetails
-  );
-  const [calculationDetails, setCalculationDetails] = useState(
-    incomeFields.calculationDetails
-  );
+  const [expenseDetails, setExpenseDetails] = useState(expenseFileds);
 
   const [isSubmitEnabled, enableSubmit] = useState(false);
 
-  const currencyInfo = useQuery({
-    queryKey: ["currency"],
-    queryFn: () => helperApi("currency"),
-    initialData: [],
-  });
-  const sourceInfo = useQuery({
-    queryKey: ["source"],
-    queryFn: () => helperApi("source"),
-    initialData: [],
-  });
   const hotelInfo = useQuery({
     queryKey: ["hotel"],
     queryFn: () => helperApi("hotel"),
@@ -63,34 +37,15 @@ export function Bill() {
     queryFn: () => helperApi("account"),
     initialData: [],
   });
-  const isGstSelected = calculationDetails.find(
-    (item) => item.name === "GST Transction"
-  )?.value;
-  const isCashReceived = accountDetails.find(
-    (item) => item.name === "Does Amount Received as Cash"
-  )?.value;
-
-  useEffect(() => {
-    form.validateFields();
-  }, [form, isGstSelected, isCashReceived]);
 
   const findOptions = (key) => {
-    if (key === "stay_name" && hotelInfo.isSuccess) {
-      return hotelInfo.data.map((item) => ({
+    if (key === "expense_for" && hotelInfo.isSuccess) {
+      const val = hotelInfo.data.map((item) => ({
         label: item.name,
         value: item.name,
       }));
-    } else if (key === "booking_from" && sourceInfo.isSuccess) {
-      return sourceInfo.data.map((item) => ({
-        label: item.name,
-        value: item.name,
-      }));
-    } else if (key === "currency_received" && currencyInfo.isSuccess) {
-      return currencyInfo.data.map((item) => ({
-        label: item.name,
-        value: item.name,
-      }));
-    } else if (key === "amount_credited_to" && currencyInfo.isSuccess) {
+      return [...val, { label: "All", value: "All" }];
+    } else if (key === "amount_debited_from" && accountInfo.isSuccess) {
       return accountInfo.data.map((item) => ({
         label: item.name,
         value: item.name,
@@ -102,119 +57,39 @@ export function Bill() {
   };
 
   const handleChangeInFileds = (e, name, id) => {
-    if (id === "bookingDetails") {
-      setBookingDetials((prev) => {
+    if (id === "expense") {
+      setExpenseDetails((prev) => {
         return prev.map((d) => ({
           ...d,
           value: d.name === name ? e : d.value,
         }));
       });
-    } else if (id === "amountDetails") {
-      setAmountDetails((prev) => {
-        const updatedInputs = prev.map((d) => ({
-          ...d,
-          value: d.name === name ? e : d.value,
-        }));
-        return updatedInputs;
-      });
-    } else if (id === "accountDetails") {
-      setAccountDetails((prev) => {
-        return prev.map((d) => ({
-          ...d,
-          value: d.name === name ? e : d.value,
-        }));
-      });
-      if (e === true && name === "Does Amount Received as Cash") {
-        setAccountDetails((prev) => {
-          return prev.map((d) => ({
-            ...d,
-            disabled: d.name != "Does Amount Received as Cash" ? true : false,
-            value:
-              d.type === "dropDown"
-                ? null
-                : d.type === "number"
-                ? 0
-                : d.type === "radio"
-                ? e
-                : "",
-            isRequired: false,
-          }));
+      if (e === false && name === "GST Transction (Expense)") {
+        setExpenseDetails(() => {
+          return updateObjectInArray(
+            expenseDetails,
+            "apiKey",
+            "gst_amount_inward",
+            "isRequired",
+            false
+          );
         });
-      } else {
-        setAccountDetails((prev) => {
-          return prev.map((d) => ({
-            ...d,
-            disabled: false,
-            isRequired: true,
-          }));
+        form.validateFields(["gst_amount_inward"]);
+      } else if (e === true && name === "GST Transction (Expense)") {
+        setExpenseDetails(() => {
+          return updateObjectInArray(
+            expenseDetails,
+            "apiKey",
+            "gst_amount_inward",
+            "isRequired",
+            true
+          );
         });
-      }
-    } else {
-      setCalculationDetails((prev) => {
-        return prev.map((d) => ({
-          ...d,
-          value: d.name === name ? e : d.value,
-        }));
-      });
-      if (e === false && name === "GST Transction") {
-        setCalculationDetails((prev) => {
-          return prev.map((d) => ({
-            ...d,
-            disabled: d.name != "GST Transction" ? true : false,
-            value:
-              d.type === "number" && !d.isDisabledPermanently
-                ? 0
-                : d.type === "radio"
-                ? e
-                : 0,
-            isRequired: false,
-          }));
-        });
-      } else {
-        setCalculationDetails((prev) => {
-          return prev.map((d) => ({
-            ...d,
-            disabled: false,
-            isRequired: true,
-          }));
-        });
+        form.validateFields(["gst_amount_inward"]);
       }
     }
   };
   const handleCalculate = async () => {
-    const totalAmount = calculateTotal([...amountDetails]);
-    const total_amountForGST = calculateTotalForGST([...calculationDetails]);
-    console.log(totalAmount, total_amountForGST);
-    const isGstSelected = calculationDetails.find(
-      (item) => item.name === "GST Transction"
-    ).value;
-
-    const final_amount = isGstSelected
-      ? totalAmount - total_amountForGST
-      : totalAmount;
-
-    setAmountDetails(() => {
-      return updateObjectInArray(
-        amountDetails,
-        "apiKey",
-        "total_amount",
-        "value",
-        totalAmount
-      );
-    });
-
-    setCalculationDetails(() => {
-      let item = updateObjectInArray(
-        calculationDetails,
-        "apiKey",
-        "final_amount",
-        "value",
-        final_amount
-      );
-
-      return item;
-    });
-
     try {
       await form.validateFields();
       enableSubmit(true);
@@ -225,24 +100,19 @@ export function Bill() {
 
   const handleSubmit = async () => {
     const values = await form.validateFields();
-    let apiBody = {
+    let data = {
       ...values,
-      date_of_booking: [
-        dayjs(values?.date_of_booking?.[0]).format("DD-MM-YYYY"),
-        dayjs(values?.date_of_booking?.[1]).format("DD-MM-YYYY"),
-      ],
-      final_amount: calculationDetails.find(
-        (item) => item.apiKey === "final_amount"
-      ).value,
-      total_amount: amountDetails.find((item) => item.apiKey === "total_amount")
-        .value,
-      isIncome: true,
+      expense_date: dayjs(values?.expense_date).format("DD-MM-YYYY"),
+      isIncome: false,
+      stay_name: values.expense_for,
+      total_expense: -values.total_expense,
     };
 
+    console.log(data);
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/bill`,
-        apiBody
+        data
       );
       if (!response.status === 201) {
         throw new Error("Network response was not ok");
@@ -253,46 +123,22 @@ export function Bill() {
     }
   };
 
-  if (
-    currencyInfo.isFetching ||
-    sourceInfo.isFetching ||
-    currencyInfo.isFetching
-  ) {
+  if (hotelInfo.isFetching || accountInfo.isFetching) {
     return <Loader />;
   }
-  console.log(amountDetails, calculationDetails);
+  // console.log(expenseDetails);
   return (
     <div className="bill_container">
-      <div className="bill_container_title">Create Entry</div>
+      <div className="bill_container_title">Expense Entry</div>
       <Form form={form} name="dynamic_rule">
         <FiledContainer
-          title={"Booking Details"}
-          fields={bookingDetails}
+          title={"Expense Details"}
+          fields={expenseDetails}
           handleChangeInFileds={handleChangeInFileds}
           findOptions={findOptions}
-          id={"bookingDetails"}
+          id={"expense"}
         />
-        <FiledContainer
-          title={"Income Details"}
-          fields={amountDetails}
-          handleChangeInFileds={handleChangeInFileds}
-          findOptions={findOptions}
-          id={"amountDetails"}
-        />
-        <FiledContainer
-          title={"Account Details"}
-          fields={accountDetails}
-          handleChangeInFileds={handleChangeInFileds}
-          findOptions={findOptions}
-          id={"accountDetails"}
-        />
-        <FiledContainer
-          title={"Calculation Details"}
-          fields={calculationDetails}
-          handleChangeInFileds={handleChangeInFileds}
-          findOptions={findOptions}
-          id={"calculationDetails"}
-        />
+
         <Row justify="end" align="bottom" gutter={[16, 16]}>
           <Col>
             <Button type="primary" onClick={handleCalculate}>
@@ -334,10 +180,10 @@ const FiledContainer = ({
       >
         <div className="bill_container_divider_title">{title}</div>
       </Divider>
-      <Row justify="start" align={"middle"} gutter={[16, 0]}>
+      <Row justify="start" align="middle" gutter={[16, 0]}>
         {fields.map((field) => {
           return (
-            <Col xs={24} sm={12} md={8} lg={6} span={6} a key={field.name}>
+            <Col xs={24} sm={12} md={8} lg={6} span={6} key={field.name}>
               <div className="bill_form_field_label">{field.name}</div>
               <div>
                 <RenderFiled
@@ -415,6 +261,7 @@ const RenderFiled = ({ field, handleChangeInFileds, findOptions, id }) => {
             // value={dayjs(field.value, "DD-MM-YYYY")}
             style={style}
             placeholder={field.placeholder}
+            format={"DD/MM/YYYY"}
           />
         );
       }

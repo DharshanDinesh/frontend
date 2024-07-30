@@ -10,10 +10,11 @@ import { helperApi } from "../../Utils/API/helperAPI";
 export function Dashboard() {
   const { RangePicker } = DatePicker;
 
+  const [filterIncome, setFilterIncome] = useState(null);
   const [filter1, setFilter1] = useState([]);
   const [filter2, setFilter2] = useState([]);
-  const [filter3, setFilter3] = useState("");
-  const [dateRange, setDateRange] = useState([null, null]);
+  const [filter3, setFilter3] = useState(null);
+  const [dateRange, setDateRange] = useState([]);
 
   const sourceInfo = useQuery({
     queryKey: ["source"],
@@ -28,41 +29,23 @@ export function Dashboard() {
     queryFn: () => helperApi("bill"),
     initialData: {},
   });
-
-  const orderColumns = (data, columnOrder) => {
-    return data?.map((item) => {
-      const orderedItem = {};
-      columnOrder.forEach((key) => {
-        if (Object.prototype.hasOwnProperty.call(item, key)) {
-          orderedItem[key] = item[key];
-        }
-      });
-      return orderedItem;
+  function removeKeyIfCondition(arr, keyToRemove, condition) {
+    return arr.map((obj) => {
+      if (condition(obj)) {
+        // eslint-disable-next-line no-unused-vars
+        const { [keyToRemove]: _d, ...newObj } = obj; // Remove the key
+        return newObj;
+      }
+      return obj;
     });
-  };
-  const column_Order = [
-    "Date_Of_Booking",
-    "Tenant_Name",
-    "Income_From_(Stay_Name)",
-    "Booking_From",
-    "Room_No",
-    "Adavance_Amount",
-    "Balance_Amount",
-    "Extra_Amount",
-    "Extra_Amount_Detail",
-    "Expenses",
-    "Expenses_Explanation",
-    "Debited_Amount",
-    "Amount_Debited_from",
-    "Amount_Credited_to",
-    "Credited_Amount",
-    "Amount_Received_As_(Rs_/_Euro)",
-    "Is_GST_Included",
-    "GST_Percentage",
-    "Share_Percentage",
-    "Final_Amount",
-  ];
-  const billItems = billInfo?.data?.items ?? [];
+  }
+  const condition = (obj) => obj.isIncome === false;
+
+  const billItems = removeKeyIfCondition(
+    billInfo?.data?.items ?? [],
+    "date_of_booking",
+    condition
+  );
 
   function findOptions(key) {
     if (key === "hotel" && hotelInfo.isSuccess) {
@@ -78,41 +61,24 @@ export function Dashboard() {
     } else if (key === "GST") {
       return ["Yes", "No"].map((item) => ({
         label: item,
-        value: item,
+        value: item === "Yes" ? true : false,
       }));
     }
   }
-
-  const columns = fields
-    .sort((a, b) => a.order - b.order)
-    .map((item) => {
-      if (item.apikey === "Is_GST_Included") {
-        return {
-          title: (
-            <div>
-              {item?.name?.split(" ").map((item) => (
-                <div key={item}>{item}</div>
-              ))}
-            </div>
-          ),
-          dataIndex: item.apikey,
-          key: item.apikey,
-          render: (text) => (text ? "Yes" : "No"),
-        };
-      } else if (item.apikey === "Date_Of_Booking") {
-        return {
-          title: (
-            <div>
-              {item?.name?.split(" ").map((item) => (
-                <div key={item}>{item}</div>
-              ))}
-            </div>
-          ),
-          dataIndex: item.apikey,
-          key: item.apikey,
-          render: (text) => dayjs(text).format("DD/MM/YYYY"), // '25/01/2019'
-        };
-      }
+  const sortByOrder = (arr) => {
+    return arr.sort((a, b) => {
+      if (a.order === undefined && b.order === undefined) return 0;
+      if (a.order === undefined) return 1;
+      if (b.order === undefined) return -1;
+      return a.order - b.order;
+    });
+  };
+  const columns = sortByOrder(fields).map((item) => {
+    if (
+      item.apiKey === "gst_transction" ||
+      item.apiKey === "is_cash_received" ||
+      item.apiKey === "gst_transction_expense"
+    ) {
       return {
         title: (
           <div>
@@ -121,103 +87,273 @@ export function Dashboard() {
             ))}
           </div>
         ),
-        dataIndex: item.apikey,
-        key: item.apikey,
-        ellipsis: true,
+        dataIndex: item.apiKey,
+        key: item.apiKey,
+        render: (text) => (text ? "Yes" : "No"),
       };
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    }
+    if (item.apiKey === "isIncome") {
+      return {
+        title: (
+          <div>
+            {item?.name?.split(" ").map((item) => (
+              <div key={item}>{item}</div>
+            ))}
+          </div>
+        ),
+        dataIndex: item.apiKey,
+        key: item.apiKey,
+        render: (text) => (text ? "Income" : "Expense"),
+      };
+    } else if (item.apiKey === "date_of_booking") {
+      return {
+        title: (
+          <div>
+            {item?.name?.split(" ").map((item) => (
+              <div key={item}>{item}</div>
+            ))}
+          </div>
+        ),
+        dataIndex: item.apiKey,
+        key: item.apiKey,
+        render: (text) => {
+          return text?.length > 0 && `${text[0]} to ${text[1]}`;
+        }, // '25/01/2019'
+      };
+    } else if (item.apiKey === "profit_loss") {
+      return {
+        title: (
+          <div>
+            {item?.name?.split(" ").map((item) => (
+              <div key={item}>{item}</div>
+            ))}
+          </div>
+        ),
+        dataIndex: item.apiKey,
+        key: item.apiKey,
+        render: (text, records) => {
+          return records.isIncome
+            ? records?.final_amount
+            : records?.total_expense;
+        },
+      };
+    }
 
-  if (billInfo.error) {
-    return <div>Error: {billInfo.error}</div>;
-  }
-
-  const groupDataByStayName = (data) => {
-    return data.reduce((acc, item) => {
-      if (!acc[item?.["Income_From_(Stay_Name)"]]) {
-        acc[item["Income_From_(Stay_Name)"]] = [];
-      }
-      acc[item["Income_From_(Stay_Name)"]].push(item);
-      return acc;
-    }, {});
-  };
-  const removeKeys = (obj, keys) => {
-    const newObj = { ...obj };
-    keys.forEach((key) => {
-      delete newObj[key];
-    });
-    return newObj;
-  };
+    return {
+      title: (
+        <div>
+          {item?.name?.split(" ").map((item) => (
+            <div key={item}>{item}</div>
+          ))}
+        </div>
+      ),
+      dataIndex: item.apiKey,
+      key: item.apiKey,
+      ellipsis: true,
+    };
+  });
 
   const handleExport = () => {
-    const groupedData = groupDataByStayName(handleCommonFilter(billItems));
+    const groupDataByStayName = (data) => {
+      return data.reduce((acc, item) => {
+        if (!acc[item?.["Stay Name"]]) {
+          acc[item["Stay Name"]] = [];
+        }
+        acc[item["Stay Name"]].push(item);
+        return acc;
+      }, {});
+    };
+    const removeKeys = (obj, keys) => {
+      const newObj = { ...obj };
+      keys.forEach((key) => {
+        delete newObj[key];
+      });
+      return newObj;
+    };
+    const headerNameMapping = fields.reduce((acc, item) => {
+      return { ...acc, [item.apiKey]: item.name };
+    }, {});
 
-    // const totalColumns = column_Order.length;
-    // const totalEntires = billItems.length;
+    const renameHeaders = (data, headerMapping = headerNameMapping) => {
+      return data.map((item) => {
+        const newItem = {};
+        for (const key in item) {
+          if (headerMapping[key]) {
+            newItem[headerMapping[key]] = item[key];
+          } else {
+            newItem[key] = item[key];
+          }
+        }
+        return newItem;
+      });
+    };
+
+    const renamed = renameHeaders(handleCommonFilter(billItems));
+    const groupedData = groupDataByStayName(renamed);
 
     const wb = XLSX.utils.book_new();
+
+    const orderColumns = (data, columnOrder) => {
+      return data?.map((item) => {
+        const orderedItem = {};
+        columnOrder.forEach((key) => {
+          if (Object.prototype.hasOwnProperty.call(item, key)) {
+            orderedItem[key] = item[key];
+          } else {
+            orderedItem[key] = ""; // Ensure that all columns are present
+          }
+        });
+        return orderedItem;
+      });
+    };
+
+    const column_Order = fields
+      .sort((a, b) => a.order - b.order)
+      .map((item) => item.name);
 
     Object.keys(groupedData).forEach((name) => {
       let filteredData = groupedData[name].map((item) =>
         removeKeys(item, ["__v", "_id"])
       );
+      filteredData = filteredData.map((item) => ({
+        ...item,
+        ["Type"]: item["Type"] ? "Income" : "Expense",
+        ["GST Transction"]: item["GST Transction"] ? "Yes" : "No",
+        ["GST Transction (Expense)"]: item["GST Transction (Expense)"]
+          ? "Yes"
+          : "No",
+        ["Date Of Booking"]: item["Type"]
+          ? `${item["Date Of Booking"]?.[0]} to ${item["Date Of Booking"]?.[1]}`
+          : "",
+        ["Does Amount Received as Cash"]: item["Does Amount Received as Cash"]
+          ? "Yes"
+          : "No",
+        ["Profit / Loss Amount"]: item["Type"]
+          ? item["Total Income"]
+          : item["Total Expense"],
+      }));
+
       filteredData = orderColumns(filteredData, column_Order);
 
-      filteredData.push(
-        column_Order.reduce((acc, key) => {
-          acc[key] = ""; // or any default value
-          return acc;
-        }, {})
-      );
-      filteredData.push(
-        column_Order.reduce((acc, key) => {
-          acc[key] = key === "Share_Percentage" ? "Total" : ""; // or any default value
-          return acc;
-        }, {})
-      );
       const ws = XLSX.utils.json_to_sheet(filteredData);
+
+      const dataLength = filteredData.length;
+      const salaryColumn = "AC"; // Assuming 'salary' is in column C
+
+      // Add the formula for the sum of the salary column
+      const totalRow = dataLength + 2; // +2 because arrays are 0-based and there's a header row
+
+      // Add the label and formula using AOA
+      const totalLabel = [["Total Amount"]];
+      const totalFormula = [
+        [{ f: `SUM(${salaryColumn}2:${salaryColumn}${dataLength + 1})` }],
+      ];
+
+      XLSX.utils.sheet_add_aoa(ws, totalLabel, {
+        origin: `AB${totalRow}`,
+      });
+      XLSX.utils.sheet_add_aoa(ws, totalFormula, {
+        origin: `${salaryColumn}${totalRow}`,
+      });
       XLSX.utils.book_append_sheet(wb, ws, `${name}`);
     });
 
     XLSX.writeFile(wb, "Stay_Info.xlsx");
   };
 
-  const handleCommonFilter = (data) => {
-    return data
-      .filter(handleFilterFilter1)
-      .filter(handleFilterFilter2)
-      .filter(handleFilterFilter3)
-      .filter(handleFilterFilter4);
+  const handleCommonFilter = (arr) => {
+    function multiFilter(array, filters) {
+      return array.filter((item) => {
+        return filters.every((filter) => filter(item));
+      });
+    }
+    const filterEntryByType = (type) => (entry) =>
+      type === null || entry.isIncome === type;
+    const filterEntryByStayName = (type) => (entry) =>
+      type?.length === 0 || type?.includes(entry["stay_name"]);
+    const filterEntryByIncomeSource = (type) => (entry) =>
+      type?.length === 0 || type?.includes(entry["booking_from"]);
+    const filterEntryByGstSales = (type) => (entry) =>
+      type === null || entry.gst_transction === type;
+    const filterEntryByDates = (type) => (entry) => {
+      return (
+        type[0] === undefined ||
+        type[1] === undefined ||
+        isDateInRange(entry?.expense_date, type[0], type[1]) ||
+        (isDateInRange(entry?.date_of_booking?.[0], type[0], type[1]) &&
+          isDateInRange(entry?.date_of_booking?.[1], type[0], type[1]))
+      );
+    };
+
+    const isDateInRange = (date, startDate, endDate) => {
+      const formattedDate = dayjs(date, "DD/MM/YYYY");
+      const start = dayjs(startDate, "DD/MM/YYYY");
+      const end = dayjs(endDate, "DD/MM/YYYY");
+
+      return (
+        (formattedDate.isAfter(start) && formattedDate.isBefore(end)) ||
+        formattedDate.isSame(start) ||
+        formattedDate.isSame(end)
+      );
+    };
+
+    return multiFilter(arr, [
+      filterEntryByType(filterIncome),
+      filterEntryByStayName(filter1),
+      filterEntryByIncomeSource(filter2),
+      filterEntryByGstSales(filter3),
+      filterEntryByDates(dateRange),
+    ]);
   };
 
-  const handleFilterFilter1 = (item) => {
-    return (
-      filter1.length === 0 || filter1?.includes(item["Income_From_(Stay_Name)"])
+  const sumTotals = (arr) => {
+    const objResults = arr.reduce(
+      (totals, transaction) => {
+        if (transaction.final_amount !== undefined) {
+          totals.final_amount += transaction.final_amount;
+        }
+        if (transaction.total_expense !== undefined) {
+          totals.total_expense += transaction.total_expense;
+        }
+        return totals;
+      },
+      { final_amount: 0, total_expense: 0 }
     );
-  };
-  const handleFilterFilter2 = (item) => {
-    return filter2.length === 0 || filter2?.includes(item["Booking_From"]);
-  };
-  const handleFilterFilter3 = (item) => {
-    const isGst = filter3 === "Yes";
-    return filter3?.length === 0 || isGst === item?.Is_GST_Included;
-  };
-  const handleFilterFilter4 = (item) => {
-    const withinDateRange =
-      dateRange[0] === null ||
-      dateRange[1] === null ||
-      (dayjs(item?.Date_Of_Booking).isAfter(dateRange[0]) &&
-        dayjs(item?.Date_Of_Booking).isBefore(dateRange[1]));
-    return withinDateRange;
+    let result = objResults.final_amount + objResults.total_expense;
+    return result;
   };
 
   const filteredTable = billItems ? handleCommonFilter(billItems) : [];
 
+  if (billInfo.error) {
+    return <div>Error: {billInfo.error}</div>;
+  }
   return (
-    <div>
-      <Button onClick={handleExport}>Export to Excel</Button>{" "}
-      <Row justify="space-around" gutter={[16, 24]}>
-        <Col span={4}>
+    <div style={{ margin: "0.5rem" }}>
+      <Row justify="end" align="middle" gutter={[16, 24]}>
+        <Col xs={24} sm={12} md={8} lg={4} span={4}>
+          <Button onClick={handleExport}>Export to Excel</Button>{" "}
+        </Col>
+      </Row>
+      <Row justify="space-around" align="middle" gutter={[16, 24]}>
+        <Col xs={24} sm={12} md={8} lg={4} span={4}>
+          <h4>Select Income / Expense</h4>
+          <Select
+            allowClear
+            style={{
+              width: "100%",
+            }}
+            placeholder="Please select"
+            onChange={(value) => {
+              setFilterIncome(value ?? null);
+            }}
+            options={[
+              { label: "Income", value: true },
+              { label: "Expense", value: false },
+            ]}
+          />
+        </Col>
+        <Col xs={24} sm={12} md={8} lg={4} span={4}>
           <h4>Stay Name</h4>
           <Select
             mode="multiple"
@@ -230,7 +366,7 @@ export function Dashboard() {
             options={findOptions("hotel")}
           />
         </Col>
-        <Col span={4}>
+        <Col xs={24} sm={12} md={8} lg={4} span={4}>
           <h4>Booking From</h4>
           <Select
             mode="multiple"
@@ -243,23 +379,32 @@ export function Dashboard() {
             options={findOptions("Booking_From")}
           />
         </Col>
-        <Col span={4}>
-          <h4>GST Included</h4>
+        <Col xs={24} sm={12} md={8} lg={4} span={4}>
+          <h4>GST Included (Sales)</h4>
           <Select
             allowClear
             style={{
               width: "100%",
             }}
             placeholder="Please select"
-            onChange={(value) => setFilter3(value)}
+            onChange={(value) => setFilter3(value ?? null)}
             options={findOptions("GST")}
           />
         </Col>
-        <Col span={5}>
+        <Col xs={24} sm={12} md={8} lg={4} span={5}>
           <h4>Select Date Range</h4>
 
           <RangePicker
-            onChange={(dates) => setDateRange(dates)}
+            onChange={(dates) => {
+              setDateRange(
+                dates === null
+                  ? []
+                  : [
+                      dates[0].format("DD/MM/YYYY"),
+                      dates[1].format("DD/MM/YYYY"),
+                    ]
+              );
+            }}
             format={"DD/MM/YYYY"}
           />
         </Col>
@@ -269,13 +414,12 @@ export function Dashboard() {
         columns={columns}
         rowKey="_id"
         scroll={{
-          x: 2000,
-          y: 400,
+          x: 4000,
+          y: 4000,
         }}
         size="small"
         loading={billInfo.isFetching}
       />
-      <h3>Total Final Amount: {billInfo.data.totalFinalAmount}</h3>
     </div>
   );
 }
