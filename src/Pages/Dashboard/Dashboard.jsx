@@ -374,7 +374,7 @@ export function Dashboard() {
 
       // Apply styles to the first row (header row)
       const headerRow = worksheet.getRow(1);
-      headerRow.font = { bold: true, size: 11, name: "Arial" };
+      headerRow.font = { bold: true, size: 11, name: "Calibri" };
       headerRow.alignment = { horizontal: "center", vertical: "center" };
       headerRow.eachCell((cell) => {
         cell.fill = {
@@ -394,8 +394,9 @@ export function Dashboard() {
             cell.fill = {
               type: "pattern",
               pattern: "solid",
-              fgColor: { argb: "FFFFAA00" }, // Light orange background color
-            }; // Red bold text
+              fgColor: { argb: "FFFFAA00" },
+            };
+            cell.font = { bold: true, size: 11, name: "Calibri" };
           }
         });
       });
