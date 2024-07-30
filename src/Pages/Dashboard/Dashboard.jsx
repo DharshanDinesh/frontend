@@ -238,7 +238,7 @@ export function Dashboard() {
       const ws = XLSX.utils.json_to_sheet(filteredData);
 
       const dataLength = filteredData.length;
-      const salaryColumn = "AC"; // Assuming 'salary' is in column C
+      const salaryColumn = "AB"; // Assuming 'salary' is in column C
 
       // Add the formula for the sum of the salary column
       const totalRow = dataLength + 2; // +2 because arrays are 0-based and there's a header row
@@ -250,7 +250,7 @@ export function Dashboard() {
       ];
 
       XLSX.utils.sheet_add_aoa(ws, totalLabel, {
-        origin: `AB${totalRow}`,
+        origin: `AA${totalRow}`,
       });
       XLSX.utils.sheet_add_aoa(ws, totalFormula, {
         origin: `${salaryColumn}${totalRow}`,
