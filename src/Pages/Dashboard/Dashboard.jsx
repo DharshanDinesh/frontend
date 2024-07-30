@@ -1,11 +1,13 @@
 import { Button, Col, Row, Select, Table } from "antd";
 import { useState } from "react";
-import * as XLSX from "xlsx";
+// import * as XLSX from "xlsx";
 import dayjs from "dayjs";
 import { fields } from "../../Utils/constant";
 import { DatePicker } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import { helperApi } from "../../Utils/API/helperAPI";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 
 export function Dashboard() {
   const { RangePicker } = DatePicker;
@@ -153,6 +155,116 @@ export function Dashboard() {
     };
   });
 
+  // const handleExport = () => {
+  //   const groupDataByStayName = (data) => {
+  //     return data.reduce((acc, item) => {
+  //       if (!acc[item?.["Stay Name"]]) {
+  //         acc[item["Stay Name"]] = [];
+  //       }
+  //       acc[item["Stay Name"]].push(item);
+  //       return acc;
+  //     }, {});
+  //   };
+  //   const removeKeys = (obj, keys) => {
+  //     const newObj = { ...obj };
+  //     keys.forEach((key) => {
+  //       delete newObj[key];
+  //     });
+  //     return newObj;
+  //   };
+  //   const headerNameMapping = fields.reduce((acc, item) => {
+  //     return { ...acc, [item.apiKey]: item.name };
+  //   }, {});
+
+  //   const renameHeaders = (data, headerMapping = headerNameMapping) => {
+  //     return data.map((item) => {
+  //       const newItem = {};
+  //       for (const key in item) {
+  //         if (headerMapping[key]) {
+  //           newItem[headerMapping[key]] = item[key];
+  //         } else {
+  //           newItem[key] = item[key];
+  //         }
+  //       }
+  //       return newItem;
+  //     });
+  //   };
+
+  //   const renamed = renameHeaders(handleCommonFilter(billItems));
+  //   const groupedData = groupDataByStayName(renamed);
+
+  //   const wb = XLSX.utils.book_new();
+
+  //   const orderColumns = (data, columnOrder) => {
+  //     return data?.map((item) => {
+  //       const orderedItem = {};
+  //       columnOrder.forEach((key) => {
+  //         if (Object.prototype.hasOwnProperty.call(item, key)) {
+  //           orderedItem[key] = item[key];
+  //         } else {
+  //           orderedItem[key] = ""; // Ensure that all columns are present
+  //         }
+  //       });
+  //       return orderedItem;
+  //     });
+  //   };
+
+  //   const column_Order = fields
+  //     .sort((a, b) => a.order - b.order)
+  //     .map((item) => item.name);
+
+  //   Object.keys(groupedData).forEach((name) => {
+  //     let filteredData = groupedData[name].map((item) =>
+  //       removeKeys(item, ["__v", "_id"])
+  //     );
+  //     filteredData = filteredData.map((item) => ({
+  //       ...item,
+  //       ["Type"]: item["Type"] ? "Income" : "Expense",
+  //       ["GST Transction"]: item["GST Transction"] ? "Yes" : "No",
+  //       ["GST Transction (Expense)"]: item["GST Transction (Expense)"]
+  //         ? "Yes"
+  //         : "No",
+  //       ["Date Of Booking"]: item["Type"]
+  //         ? `${item["Date Of Booking"]?.[0]} to ${item["Date Of Booking"]?.[1]}`
+  //         : "",
+  //       ["Does Amount Received as Cash"]: item["Does Amount Received as Cash"]
+  //         ? "Yes"
+  //         : "No",
+  //       ["Profit / Loss Amount"]: item["Type"]
+  //         ? item["Total Income"]
+  //         : item["Total Expense"],
+  //     }));
+
+  //     filteredData = orderColumns(filteredData, column_Order);
+
+  //     const ws = XLSX.utils.json_to_sheet(filteredData);
+
+  //     // Apply styles to the first row
+
+  //     const dataLength = filteredData.length;
+  //     const salaryColumn = "AB"; // Assuming 'salary' is in column C
+
+  //     // Add the formula for the sum of the salary column
+  //     const totalRow = dataLength + 2; // +2 because arrays are 0-based and there's a header row
+
+  //     // Add the label and formula using AOA
+  //     const totalLabel = [["Total Amount"]];
+  //     const totalFormula = [
+  //       [{ f: `SUM(${salaryColumn}2:${salaryColumn}${dataLength + 1})` }],
+  //     ];
+
+  //     XLSX.utils.sheet_add_aoa(ws, totalLabel, {
+  //       origin: `AA${totalRow}`,
+  //     });
+  //     XLSX.utils.sheet_add_aoa(ws, totalFormula, {
+  //       origin: `${salaryColumn}${totalRow}`,
+  //     });
+  //     XLSX.utils.book_append_sheet(wb, ws, `${name}`);
+  //   });
+
+  //   XLSX.writeFile(wb, "Stay_Info.xlsx");
+  // };
+
   const handleExport = () => {
     const groupDataByStayName = (data) => {
       return data.reduce((acc, item) => {
@@ -163,6 +275,7 @@ export function Dashboard() {
         return acc;
       }, {});
     };
+
     const removeKeys = (obj, keys) => {
       const newObj = { ...obj };
       keys.forEach((key) => {
@@ -170,6 +283,7 @@ export function Dashboard() {
       });
       return newObj;
     };
+
     const headerNameMapping = fields.reduce((acc, item) => {
       return { ...acc, [item.apiKey]: item.name };
     }, {});
@@ -191,8 +305,6 @@ export function Dashboard() {
     const renamed = renameHeaders(handleCommonFilter(billItems));
     const groupedData = groupDataByStayName(renamed);
 
-    const wb = XLSX.utils.book_new();
-
     const orderColumns = (data, columnOrder) => {
       return data?.map((item) => {
         const orderedItem = {};
@@ -210,6 +322,8 @@ export function Dashboard() {
     const column_Order = fields
       .sort((a, b) => a.order - b.order)
       .map((item) => item.name);
+
+    const workbook = new ExcelJS.Workbook();
 
     Object.keys(groupedData).forEach((name) => {
       let filteredData = groupedData[name].map((item) =>
@@ -235,32 +349,73 @@ export function Dashboard() {
 
       filteredData = orderColumns(filteredData, column_Order);
 
-      const ws = XLSX.utils.json_to_sheet(filteredData);
+      const worksheet = workbook.addWorksheet(name);
 
-      const dataLength = filteredData.length;
-      const salaryColumn = "AB"; // Assuming 'salary' is in column C
+      // Add headers
+      const headers = Object.keys(filteredData[0]);
+      worksheet.addRow(headers);
 
-      // Add the formula for the sum of the salary column
-      const totalRow = dataLength + 2; // +2 because arrays are 0-based and there's a header row
-
-      // Add the label and formula using AOA
-      const totalLabel = [["Total Amount"]];
-      const totalFormula = [
-        [{ f: `SUM(${salaryColumn}2:${salaryColumn}${dataLength + 1})` }],
-      ];
-
-      XLSX.utils.sheet_add_aoa(ws, totalLabel, {
-        origin: `AA${totalRow}`,
+      // Add data
+      filteredData.forEach((row) => {
+        worksheet.addRow(Object.values(row));
       });
-      XLSX.utils.sheet_add_aoa(ws, totalFormula, {
-        origin: `${salaryColumn}${totalRow}`,
+
+      // Set column widths based on maximum length of content in each column
+      headers.forEach((header, i) => {
+        let maxLength = header.length;
+        filteredData.forEach((row) => {
+          const cellValue = row[header];
+          if (cellValue && cellValue.toString().length > maxLength) {
+            maxLength = cellValue.toString().length;
+          }
+        });
+        worksheet.getColumn(i + 1).width = maxLength + 2; // +2 for padding
       });
-      XLSX.utils.book_append_sheet(wb, ws, `${name}`);
+
+      // Apply styles to the first row (header row)
+      const headerRow = worksheet.getRow(1);
+      headerRow.font = { bold: true, size: 11, name: "Arial" };
+      headerRow.alignment = { horizontal: "center", vertical: "center" };
+      headerRow.eachCell((cell) => {
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFFFAA00" }, // Light orange background color
+        };
+      });
+
+      // Center-align all cells and apply specific styling to the last column
+      worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+        row.eachCell({ includeEmpty: false }, (cell, colNumber) => {
+          cell.alignment = { horizontal: "center", vertical: "center" };
+          // Apply styling to the last column (Profit / Loss Amount)
+          if (colNumber === headers.length) {
+            cell.font = { color: "black", bold: true };
+            cell.fill = {
+              type: "pattern",
+              pattern: "solid",
+              fgColor: { argb: "FFFFAA00" }, // Light orange background color
+            }; // Red bold text
+          }
+        });
+      });
+
+      // Add total amount row
+      const totalRow = worksheet.getRow(filteredData.length + 2);
+      totalRow.getCell(headers.length - 1).value = "Total Amount";
+      totalRow.getCell(headers.length).value = {
+        formula: `SUM(${worksheet.getColumn(headers.length).letter}2:${
+          worksheet.getColumn(headers.length).letter
+        }${filteredData.length + 1})`,
+      };
+      totalRow.font = { bold: true };
     });
 
-    XLSX.writeFile(wb, "Stay_Info.xlsx");
+    // Save the workbook
+    workbook.xlsx.writeBuffer().then((buffer) => {
+      saveAs(new Blob([buffer]), "Stay_Info.xlsx");
+    });
   };
-
   const handleCommonFilter = (arr) => {
     function multiFilter(array, filters) {
       return array.filter((item) => {
@@ -306,22 +461,22 @@ export function Dashboard() {
     ]);
   };
 
-  const sumTotals = (arr) => {
-    const objResults = arr.reduce(
-      (totals, transaction) => {
-        if (transaction.final_amount !== undefined) {
-          totals.final_amount += transaction.final_amount;
-        }
-        if (transaction.total_expense !== undefined) {
-          totals.total_expense += transaction.total_expense;
-        }
-        return totals;
-      },
-      { final_amount: 0, total_expense: 0 }
-    );
-    let result = objResults.final_amount + objResults.total_expense;
-    return result;
-  };
+  // const sumTotals = (arr) => {
+  //   const objResults = arr.reduce(
+  //     (totals, transaction) => {
+  //       if (transaction.final_amount !== undefined) {
+  //         totals.final_amount += transaction.final_amount;
+  //       }
+  //       if (transaction.total_expense !== undefined) {
+  //         totals.total_expense += transaction.total_expense;
+  //       }
+  //       return totals;
+  //     },
+  //     { final_amount: 0, total_expense: 0 }
+  //   );
+  //   let result = objResults.final_amount + objResults.total_expense;
+  //   return result;
+  // };
 
   const filteredTable = billItems ? handleCommonFilter(billItems) : [];
 

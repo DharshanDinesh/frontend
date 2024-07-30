@@ -10,6 +10,7 @@ import {
   Radio,
   Row,
   Select,
+  notification,
 } from "antd";
 import { useState } from "react";
 import "./expense.css";
@@ -108,7 +109,6 @@ export function Expense() {
       total_expense: -values.total_expense,
     };
 
-    console.log(data);
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/bill`,
@@ -117,7 +117,7 @@ export function Expense() {
       if (!response.status === 201) {
         throw new Error("Network response was not ok");
       }
-      // response.status === 201 && handleClearForm();
+      response.status === 201 && handleClearForm();
     } catch (error) {
       console.log(error);
     }
