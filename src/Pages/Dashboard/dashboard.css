@@ -1,0 +1,25 @@
+.custom-table .ant-table {
+    border: 1px solid #ddd;
+    /* Border for the table */
+}
+
+.custom-table .ant-table-thead>tr>th {
+    background: #f9f9f9;
+    border-bottom: 2px solid #ddd;
+    border-right: 1px solid #ddd;
+    text-align: center;
+    /* Center-align header text */
+    /* Border for table header cells */
+}
+
+/* .custom-table .ant-table-tbody>tr:nth-child(odd) {
+    background-color: #f9f9f9;
+    /* Striped rows color */
+}
+
+*/ .custom-table .ant-table-tbody>tr>td {
+    border-bottom: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    text-align: center;
+    /* Border for table data cells */
+}

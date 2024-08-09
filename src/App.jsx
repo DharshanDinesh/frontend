@@ -2,7 +2,8 @@
 import { Container } from "./Components/Container/Container";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
-
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -38,5 +39,10 @@ const router = createBrowserRouter([
   },
 ]);
 export function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <ToastContainer />
+      <RouterProvider router={router} />
+    </>
+  );
 }

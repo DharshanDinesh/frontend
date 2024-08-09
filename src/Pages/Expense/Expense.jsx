@@ -10,7 +10,6 @@ import {
   Radio,
   Row,
   Select,
-  notification,
 } from "antd";
 import { useState } from "react";
 import "./expense.css";
@@ -20,6 +19,7 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { helperApi, updateObjectInArray } from "../../Utils/API/helperAPI";
 import { Loader } from "../../Components/Loader/Loader";
+import { toast } from "react-toastify";
 
 export function Expense() {
   const [form] = Form.useForm();
@@ -27,6 +27,7 @@ export function Expense() {
   const [expenseDetails, setExpenseDetails] = useState(expenseFileds);
 
   const [isSubmitEnabled, enableSubmit] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const hotelInfo = useQuery({
     queryKey: ["hotel"],
@@ -47,48 +48,49 @@ export function Expense() {
       }));
       return [...val, { label: "All", value: "All" }];
     } else if (key === "amount_debited_from" && accountInfo.isSuccess) {
-      return accountInfo.data.map((item) => ({
+      return [...accountInfo.data, { name: "Cash" }].map((item) => ({
         label: item.name,
         value: item.name,
       }));
     }
   };
   const handleClearForm = () => {
-    window.location.reload();
+    // window.location.reload();
+    form.resetFields();
   };
 
   const handleChangeInFileds = (e, name, id) => {
-    if (id === "expense") {
-      setExpenseDetails((prev) => {
-        return prev.map((d) => ({
-          ...d,
-          value: d.name === name ? e : d.value,
-        }));
-      });
-      if (e === false && name === "GST Transction (Expense)") {
-        setExpenseDetails(() => {
-          return updateObjectInArray(
-            expenseDetails,
-            "apiKey",
-            "gst_amount_inward",
-            "isRequired",
-            false
-          );
-        });
-        form.validateFields(["gst_amount_inward"]);
-      } else if (e === true && name === "GST Transction (Expense)") {
-        setExpenseDetails(() => {
-          return updateObjectInArray(
-            expenseDetails,
-            "apiKey",
-            "gst_amount_inward",
-            "isRequired",
-            true
-          );
-        });
-        form.validateFields(["gst_amount_inward"]);
-      }
-    }
+    // if (id === "expense") {
+    //   setExpenseDetails((prev) => {
+    //     return prev.map((d) => ({
+    //       ...d,
+    //       value: d.name === name ? e : d.value,
+    //     }));
+    //   });
+    //   if (e === false && name === "GST Transction (Expense)") {
+    //     setExpenseDetails(() => {
+    //       return updateObjectInArray(
+    //         expenseDetails,
+    //         "apiKey",
+    //         "gst_amount_inward",
+    //         "isRequired",
+    //         false
+    //       );
+    //     });
+    //     form.validateFields(["gst_amount_inward"]);
+    //   } else if (e === true && name === "GST Transction (Expense)") {
+    //     setExpenseDetails(() => {
+    //       return updateObjectInArray(
+    //         expenseDetails,
+    //         "apiKey",
+    //         "gst_amount_inward",
+    //         "isRequired",
+    //         true
+    //       );
+    //     });
+    //     form.validateFields(["gst_amount_inward"]);
+    //   }
+    // }
   };
   const handleCalculate = async () => {
     try {
@@ -98,9 +100,52 @@ export function Expense() {
       console.log("Failed:", errorInfo);
     }
   };
+  const Msg = ({ title, text }) => {
+    return (
+      <div className="msg-container">
+        <p className="msg-title">{title}</p>
+        <p className="msg-description">{text}</p>
+      </div>
+    );
+  };
 
+  const toastSuccess = () => {
+    toast.success(
+      <Msg
+        title="Submitted Successfully"
+        text="Resetting the form in 4 seconds"
+      />,
+      {
+        position: "top-right",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        onClose: () => {
+          handleClearForm();
+        },
+      }
+    );
+  };
+  const toastError = () => {
+    toast.error(<Msg title="Error occured" text="Something went wrong" />, {
+      position: "top-right",
+      autoClose: 4000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    });
+  };
   const handleSubmit = async () => {
     const values = await form.validateFields();
+    setLoading(true);
+
     let data = {
       ...values,
       expense_date: dayjs(values?.expense_date).format("DD-MM-YYYY"),
@@ -114,19 +159,23 @@ export function Expense() {
         `${import.meta.env.VITE_API_URL}/bill`,
         data
       );
+      response.status === 201 && toastSuccess();
+      setLoading(false);
+
       if (!response.status === 201) {
         throw new Error("Network response was not ok");
       }
-      response.status === 201 && handleClearForm();
+      // response.status === 201 && handleClearForm();
     } catch (error) {
       console.log(error);
+      toastError();
+      setLoading(false);
     }
   };
 
   if (hotelInfo.isFetching || accountInfo.isFetching) {
     return <Loader />;
   }
-  // console.log(expenseDetails);
   return (
     <div className="bill_container">
       <div className="bill_container_title">Expense Entry</div>

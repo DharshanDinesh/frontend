@@ -14,66 +14,65 @@ export const filedContainers = [
 export const incomeFields = {
     bookingDetails: [
         {
+            name: "Date of Entry",
+            type: "datePicker",
+            // value: null,
+            container: "bookingDetails",
+            apiKey: "date_of_entry",
+            isRequired: true,
+            order: 2,
+
+        },
+        {
             name: "Tenant Name",
             type: "text",
-            value: "",
+            // value: null,
             container: "bookingDetails",
             apiKey: "tenant_name",
             isRequired: true,
-            order: 5
+            order: 5,
 
         },
         {
             name: "Stay Name",
             type: "dropDown",
-            value: null,
+            // value: null,
             container: "bookingDetails",
-            options: [],
+            // options: [],
             apiKey: "stay_name",
             isRequired: true,
-            order: 4
+            order: 6,
 
         },
         {
             name: "Date Of Booking",
             type: "dateRangePicker",
-            value: [],
+            // value: [],
             container: "bookingDetails",
             apiKey: "date_of_booking",
             isRequired: true,
-            order: 2
+            order: 7
         },
         {
             name: "Booking From",
             type: "dropDown",
-            value: null,
+            // value: null,
             container: "bookingDetails",
             options: [],
             apiKey: "booking_from",
             isRequired: true,
-            order: 6
-
+            order: 8
         },
         {
             name: "Room No",
-            type: "text",
-            value: "",
+            type: "dropDown",
+            // value: "",
             container: "bookingDetails",
             apiKey: "room_no",
+            // options: [],
             isRequired: true,
-            order: 7
-
+            order: 9
         },
-        // {
-        //     name: "Share Percentage",
-        //     type: "number",
-        //     value: 0,
-        //     container: "bookingDetails",
-        //     apiKey: "share_percentage",
-        //     isRequired: true,
-        //     order: 21
-
-        // },
     ],
     amountDetails: [
         {
@@ -83,8 +82,7 @@ export const incomeFields = {
             container: "amountDetails",
             apiKey: "adavance_amount",
             isRequired: true,
-            order: 8
-
+            order: 10
         },
         {
             name: "Balance Amount",
@@ -93,8 +91,7 @@ export const incomeFields = {
             container: "amountDetails",
             apiKey: "balance_amount",
             isRequired: true,
-            order: 9
-
+            order: 11
         },
         {
             name: "Extra Amount",
@@ -103,8 +100,7 @@ export const incomeFields = {
             container: "amountDetails",
             apiKey: "extra_amount",
             isRequired: true,
-            order: 10
-
+            order: 12
         },
         {
             name: "Extra Amount Detail",
@@ -112,50 +108,55 @@ export const incomeFields = {
             value: "",
             container: "amountDetails",
             apiKey: "extra_amount_detail",
-            order: 11
-
+            order: 13
         },
         {
-            name: "Total Amount",
-            type: "red",
+            name: "Total Income Amount",
+            type: "text",
             value: 0,
             container: "amountDetails",
             apiKey: "total_amount",
             disabled: true,
             isDisabledPermanently: true,
-            order: 12
-
+            order: 14
         },
     ],
     accountDetails: [
         {
-            name: "Does Amount Received as Cash",
-            type: "radio",
-            value: false,
+            name: "Amount Received in Cash",
+            type: "number",
+            value: 0,
             container: "accountDetails",
-            apiKey: "is_cash_received",
-            isRequired: true,
-            order: 13
-
+            apiKey: "cash_received",
+            isRequired: false,
+            order: 15
+        },
+        {
+            name: "Amount Received in Gpay",
+            type: "number",
+            value: 0,
+            container: "accountDetails",
+            apiKey: "amount_received_in_gpay",
+            isRequired: false,
+            order: 16
+        },
+        {
+            name: "Amount Received in Account",
+            type: "number",
+            value: 0,
+            container: "accountDetails",
+            apiKey: "amount_received_in_account",
+            isRequired: false,
+            order: 17
         },
         {
             name: "Amount Credited to",
-            type: "dropDown",
+            type: "multidropDown",
             value: null,
             container: "accountDetails",
             apiKey: "amount_credited_to",
             isRequired: true,
-            order: 14
-
-        },
-        {
-            name: "Credited Amount",
-            type: "number",
-            value: 0,
-            container: "accountDetails",
-            apiKey: "credited_amount",
-            isRequired: true,
-            order: 15
+            order: 18
         },
 
         {
@@ -166,7 +167,7 @@ export const incomeFields = {
             value: null,
             apiKey: "currency_received",
             isRequired: true,
-            order: 16
+            order: 19
         },
     ],
     calculationDetails: [
@@ -177,8 +178,16 @@ export const incomeFields = {
             container: "calculationDetails",
             apiKey: "gst_transction",
             isRequired: true,
-            order: 17
-
+            order: 20
+        },
+        {
+            name: "Broker Commission",
+            type: "number",
+            value: 0,
+            container: "calculationDetails",
+            apiKey: "broker_commission",
+            isRequired: true,
+            order: 21
         },
         {
             name: "GST Amount",
@@ -187,8 +196,7 @@ export const incomeFields = {
             container: "calculationDetails",
             apiKey: "gst_amount",
             isRequired: true,
-            order: 18
-
+            order: 22
         },
         {
             name: "TDS Amount",
@@ -197,8 +205,7 @@ export const incomeFields = {
             container: "calculationDetails",
             apiKey: "tds_amount",
             isRequired: true,
-            order: 19
-
+            order: 23
         },
         {
             name: "TCS Amount",
@@ -207,35 +214,31 @@ export const incomeFields = {
             container: "calculationDetails",
             apiKey: "tcs_amount",
             isRequired: true,
-            order: 20
+            order: 24
         },
         {
-            name: "Total Income",
-            type: "red",
+            name: "Income After tax",
+            type: "text",
             value: 0,
             disabled: true,
             container: "calculationDetails",
             apiKey: "final_amount",
             isDisabledPermanently: true,
-            order: 21
-
+            order: 25
         },
-
     ],
 };
-
 
 export const expenseContainer = [{ key: "expense", title: "Expense Details" }];
 export const expenseFileds = [
     {
         name: "Date Of Expense",
         type: "datePicker",
-        value: dayjs(),
+        value: null,
         container: "expense",
         apiKey: "expense_date",
         isRequired: true,
         order: 3
-
     },
     {
         name: "Expense for",
@@ -244,7 +247,7 @@ export const expenseFileds = [
         container: "expense",
         apiKey: "expense_for",
         isRequired: true,
-        order: 22
+        order: 4
     },
 
     {
@@ -254,7 +257,8 @@ export const expenseFileds = [
         container: "expense",
         apiKey: "expenses_explanation",
         isRequired: true,
-        order: 23
+        order: 26
+
     },
     {
         name: "GST Transction (Expense)",
@@ -263,7 +267,7 @@ export const expenseFileds = [
         container: "calculationDetails",
         apiKey: "gst_transction_expense",
         isRequired: true,
-        order: 24
+        order: 27
     },
     {
         name: "Inward GST Amount",
@@ -271,8 +275,7 @@ export const expenseFileds = [
         container: "calculationDetails",
         apiKey: "gst_amount_inward",
         isRequired: true,
-        order: 25
-
+        order: 28
     },
 
     {
@@ -282,7 +285,7 @@ export const expenseFileds = [
         container: "expense",
         apiKey: "amount_debited_from",
         isRequired: true,
-        order: 26
+        order: 29
     },
     {
         name: "Total Expense",
@@ -291,8 +294,8 @@ export const expenseFileds = [
         container: "expenses",
         apiKey: "total_expense",
         isRequired: true,
+        order: 30,
         rules: [{ min: 1, type: "number", message: `Expenses cannot be 0` }],
-        order: 27
     },
 ];
 export const fields = [
@@ -300,7 +303,6 @@ export const fields = [
         name: "Type",
         apiKey: "isIncome",
         order: 1,
-
     },
     ...incomeFields.bookingDetails,
     ...incomeFields.amountDetails,
@@ -310,7 +312,7 @@ export const fields = [
     {
         name: "Profit / Loss Amount",
         apiKey: "profit_loss",
-        order: 28
+        order: 31,
     },
 ];
 

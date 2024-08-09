@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { helperApi } from "../../Utils/API/helperAPI";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-
+import "./dashboard.css";
 export function Dashboard() {
   const { RangePicker } = DatePicker;
 
@@ -139,6 +139,21 @@ export function Dashboard() {
             : records?.total_expense;
         },
       };
+    } else if (item.apiKey === "amount_credited_to") {
+      return {
+        title: (
+          <div>
+            {item?.name?.split(" ").map((item) => (
+              <div key={item}>{item}</div>
+            ))}
+          </div>
+        ),
+        dataIndex: item.apiKey,
+        key: item.apiKey,
+        render: (text) => {
+          return text.join(",");
+        },
+      };
     }
 
     return {
@@ -154,116 +169,6 @@ export function Dashboard() {
       ellipsis: true,
     };
   });
-
-  // const handleExport = () => {
-  //   const groupDataByStayName = (data) => {
-  //     return data.reduce((acc, item) => {
-  //       if (!acc[item?.["Stay Name"]]) {
-  //         acc[item["Stay Name"]] = [];
-  //       }
-  //       acc[item["Stay Name"]].push(item);
-  //       return acc;
-  //     }, {});
-  //   };
-  //   const removeKeys = (obj, keys) => {
-  //     const newObj = { ...obj };
-  //     keys.forEach((key) => {
-  //       delete newObj[key];
-  //     });
-  //     return newObj;
-  //   };
-  //   const headerNameMapping = fields.reduce((acc, item) => {
-  //     return { ...acc, [item.apiKey]: item.name };
-  //   }, {});
-
-  //   const renameHeaders = (data, headerMapping = headerNameMapping) => {
-  //     return data.map((item) => {
-  //       const newItem = {};
-  //       for (const key in item) {
-  //         if (headerMapping[key]) {
-  //           newItem[headerMapping[key]] = item[key];
-  //         } else {
-  //           newItem[key] = item[key];
-  //         }
-  //       }
-  //       return newItem;
-  //     });
-  //   };
-
-  //   const renamed = renameHeaders(handleCommonFilter(billItems));
-  //   const groupedData = groupDataByStayName(renamed);
-
-  //   const wb = XLSX.utils.book_new();
-
-  //   const orderColumns = (data, columnOrder) => {
-  //     return data?.map((item) => {
-  //       const orderedItem = {};
-  //       columnOrder.forEach((key) => {
-  //         if (Object.prototype.hasOwnProperty.call(item, key)) {
-  //           orderedItem[key] = item[key];
-  //         } else {
-  //           orderedItem[key] = ""; // Ensure that all columns are present
-  //         }
-  //       });
-  //       return orderedItem;
-  //     });
-  //   };
-
-  //   const column_Order = fields
-  //     .sort((a, b) => a.order - b.order)
-  //     .map((item) => item.name);
-
-  //   Object.keys(groupedData).forEach((name) => {
-  //     let filteredData = groupedData[name].map((item) =>
-  //       removeKeys(item, ["__v", "_id"])
-  //     );
-  //     filteredData = filteredData.map((item) => ({
-  //       ...item,
-  //       ["Type"]: item["Type"] ? "Income" : "Expense",
-  //       ["GST Transction"]: item["GST Transction"] ? "Yes" : "No",
-  //       ["GST Transction (Expense)"]: item["GST Transction (Expense)"]
-  //         ? "Yes"
-  //         : "No",
-  //       ["Date Of Booking"]: item["Type"]
-  //         ? `${item["Date Of Booking"]?.[0]} to ${item["Date Of Booking"]?.[1]}`
-  //         : "",
-  //       ["Does Amount Received as Cash"]: item["Does Amount Received as Cash"]
-  //         ? "Yes"
-  //         : "No",
-  //       ["Profit / Loss Amount"]: item["Type"]
-  //         ? item["Total Income"]
-  //         : item["Total Expense"],
-  //     }));
-
-  //     filteredData = orderColumns(filteredData, column_Order);
-
-  //     const ws = XLSX.utils.json_to_sheet(filteredData);
-
-  //     // Apply styles to the first row
-
-  //     const dataLength = filteredData.length;
-  //     const salaryColumn = "AB"; // Assuming 'salary' is in column C
-
-  //     // Add the formula for the sum of the salary column
-  //     const totalRow = dataLength + 2; // +2 because arrays are 0-based and there's a header row
-
-  //     // Add the label and formula using AOA
-  //     const totalLabel = [["Total Amount"]];
-  //     const totalFormula = [
-  //       [{ f: `SUM(${salaryColumn}2:${salaryColumn}${dataLength + 1})` }],
-  //     ];
-
-  //     XLSX.utils.sheet_add_aoa(ws, totalLabel, {
-  //       origin: `AA${totalRow}`,
-  //     });
-  //     XLSX.utils.sheet_add_aoa(ws, totalFormula, {
-  //       origin: `${salaryColumn}${totalRow}`,
-  //     });
-  //     XLSX.utils.book_append_sheet(wb, ws, `${name}`);
-  //   });
-
-  //   XLSX.writeFile(wb, "Stay_Info.xlsx");
-  // };
 
   const handleExport = () => {
     const groupDataByStayName = (data) => {
@@ -343,8 +248,9 @@ export function Dashboard() {
           ? "Yes"
           : "No",
         ["Profit / Loss Amount"]: item["Type"]
-          ? item["Total Income"]
+          ? item["Income After tax"]
           : item["Total Expense"],
+        ["Amount Credited to"]: item["Amount Credited to"].join(" , "),
       }));
 
       filteredData = orderColumns(filteredData, column_Order);
@@ -462,30 +368,13 @@ export function Dashboard() {
     ]);
   };
 
-  // const sumTotals = (arr) => {
-  //   const objResults = arr.reduce(
-  //     (totals, transaction) => {
-  //       if (transaction.final_amount !== undefined) {
-  //         totals.final_amount += transaction.final_amount;
-  //       }
-  //       if (transaction.total_expense !== undefined) {
-  //         totals.total_expense += transaction.total_expense;
-  //       }
-  //       return totals;
-  //     },
-  //     { final_amount: 0, total_expense: 0 }
-  //   );
-  //   let result = objResults.final_amount + objResults.total_expense;
-  //   return result;
-  // };
-
   const filteredTable = billItems ? handleCommonFilter(billItems) : [];
 
   if (billInfo.error) {
     return <div>Error: {billInfo.error}</div>;
   }
   return (
-    <div style={{ margin: "0.5rem" }}>
+    <div>
       <Row justify="end" align="middle" gutter={[16, 24]}>
         <Col xs={24} sm={12} md={8} lg={4} span={4}>
           <Button onClick={handleExport}>Export to Excel</Button>{" "}
@@ -565,17 +454,21 @@ export function Dashboard() {
           />
         </Col>
       </Row>
-      <Table
-        dataSource={filteredTable}
-        columns={columns}
-        rowKey="_id"
-        scroll={{
-          x: 4000,
-          y: 4000,
-        }}
-        size="small"
-        loading={billInfo.isFetching}
-      />
+      <div style={{ margin: "0.5rem" }}>
+        <Table
+          dataSource={filteredTable}
+          columns={columns}
+          rowKey="_id"
+          scroll={{
+            x: 4000,
+            y: 4000,
+          }}
+          size="small"
+          loading={billInfo.isFetching}
+          pagination={false}
+          className="custom-table"
+        />
+      </div>
     </div>
   );
 }

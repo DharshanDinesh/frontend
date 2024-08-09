@@ -12,7 +12,9 @@ export const Container = () => {
       <Layout>
         <Header />
         <Content>
-          <Outlet />
+          <div style={{ minHeight: window.innerHeight }}>
+            <Outlet />
+          </div>
         </Content>
       </Layout>
     </Layout>

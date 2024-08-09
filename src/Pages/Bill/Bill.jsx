@@ -7,24 +7,19 @@ import {
   Form,
   Input,
   InputNumber,
-  notification,
   Radio,
   Row,
   Select,
 } from "antd";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "./Bill.css";
 import dayjs from "dayjs";
 import { incomeFields } from "../../Utils/constant";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
-import {
-  calculateTotal,
-  calculateTotalForGST,
-  helperApi,
-  updateObjectInArray,
-} from "../../Utils/API/helperAPI";
+import { helperApi, updateObjectInArray } from "../../Utils/API/helperAPI";
 import { Loader } from "../../Components/Loader/Loader";
+import { toast } from "react-toastify";
 
 export function Bill() {
   const [form] = Form.useForm();
@@ -43,6 +38,8 @@ export function Bill() {
   );
 
   const [isSubmitEnabled, enableSubmit] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [dummy, setDummy] = useState(false);
 
   const currencyInfo = useQuery({
     queryKey: ["currency"],
@@ -64,16 +61,6 @@ export function Bill() {
     queryFn: () => helperApi("account"),
     initialData: [],
   });
-  const isGstSelected = calculationDetails.find(
-    (item) => item.name === "GST Transction"
-  )?.value;
-  const isCashReceived = accountDetails.find(
-    (item) => item.name === "Does Amount Received as Cash"
-  )?.value;
-
-  useEffect(() => {
-    form.validateFields();
-  }, [form, isGstSelected, isCashReceived]);
 
   const findOptions = (key) => {
     if (key === "stay_name" && hotelInfo.isSuccess) {
@@ -91,134 +78,100 @@ export function Bill() {
         label: item.name,
         value: item.name,
       }));
-    } else if (key === "amount_credited_to" && currencyInfo.isSuccess) {
+    } else if (key === "amount_credited_to" && accountInfo.isSuccess) {
       return accountInfo.data.map((item) => ({
         label: item.name,
         value: item.name,
       }));
+    } else if (key === "room_no" && hotelInfo.isSuccess) {
+      const hotelName = form.getFieldValue("stay_name");
+      const a = hotelInfo.data
+        .find((d) => d.name === hotelName)
+        ?.rooms?.map((item) => ({
+          label: item,
+          value: item,
+        }));
+      return a;
     }
   };
-  const handleClearForm = () => {
-    window.location.reload();
+  const Msg = ({ title, text }) => {
+    return (
+      <div className="msg-container">
+        <p className="msg-title">{title}</p>
+        <p className="msg-description">{text}</p>
+      </div>
+    );
   };
 
-  const handleChangeInFileds = (e, name, id) => {
-    if (id === "bookingDetails") {
-      setBookingDetials((prev) => {
-        return prev.map((d) => ({
-          ...d,
-          value: d.name === name ? e : d.value,
-        }));
-      });
-    } else if (id === "amountDetails") {
-      setAmountDetails((prev) => {
-        const updatedInputs = prev.map((d) => ({
-          ...d,
-          value: d.name === name ? e : d.value,
-        }));
-        return updatedInputs;
-      });
-    } else if (id === "accountDetails") {
-      setAccountDetails((prev) => {
-        return prev.map((d) => ({
-          ...d,
-          value: d.name === name ? e : d.value,
-        }));
-      });
-      if (e === true && name === "Does Amount Received as Cash") {
-        setAccountDetails((prev) => {
-          return prev.map((d) => ({
-            ...d,
-            disabled: d.name != "Does Amount Received as Cash" ? true : false,
-            value:
-              d.type === "dropDown"
-                ? null
-                : d.type === "number"
-                ? 0
-                : d.type === "radio"
-                ? e
-                : "",
-            isRequired: false,
-          }));
-        });
-      } else {
-        setAccountDetails((prev) => {
-          return prev.map((d) => ({
-            ...d,
-            disabled: false,
-            isRequired: true,
-          }));
-        });
+  const toastSuccess = () => {
+    toast.success(
+      <Msg
+        title="Submitted Successfully"
+        text="Resetting the form in 4 seconds"
+      />,
+      {
+        position: "top-right",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        onClose: () => {
+          handleClearForm();
+        },
       }
-    } else {
-      setCalculationDetails((prev) => {
-        return prev.map((d) => ({
-          ...d,
-          value: d.name === name ? e : d.value,
-        }));
-      });
-      if (e === false && name === "GST Transction") {
-        setCalculationDetails((prev) => {
-          return prev.map((d) => ({
-            ...d,
-            disabled: d.name != "GST Transction" ? true : false,
-            value:
-              d.type === "number" && !d.isDisabledPermanently
-                ? 0
-                : d.type === "radio"
-                ? e
-                : 0,
-            isRequired: false,
-          }));
-        });
-      } else {
-        setCalculationDetails((prev) => {
-          return prev.map((d) => ({
-            ...d,
-            disabled: false,
-            isRequired: true,
-          }));
-        });
-      }
-    }
+    );
   };
+  const toastError = () => {
+    toast.error(<Msg title="Error occured" text="Something went wrong" />, {
+      position: "top-right",
+      autoClose: 4000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    });
+  };
+  const handleClearForm = () => {
+    form.resetFields();
+    enableSubmit(false);
+  };
+
+  const handleChangeInFileds = () => {
+    setDummy((prev) => !prev);
+  };
+
   const handleCalculate = async () => {
-    const totalAmount = calculateTotal([...amountDetails]);
-    const total_amountForGST = calculateTotalForGST([...calculationDetails]);
-    console.log(totalAmount, total_amountForGST);
-    const isGstSelected = calculationDetails.find(
-      (item) => item.name === "GST Transction"
-    ).value;
+    const formValues = await form.getFieldValue();
+    console.log(formValues, "adsf");
+    const totalAmount =
+      formValues.adavance_amount +
+      formValues.balance_amount +
+      formValues.extra_amount;
+
+    const total_amountForGST =
+      formValues.gst_amount + formValues.tcs_amount + formValues.tds_amount;
+
+    const isGstSelected = formValues.gst_transction;
 
     const final_amount = isGstSelected
       ? totalAmount - total_amountForGST
       : totalAmount;
 
-    setAmountDetails(() => {
-      return updateObjectInArray(
-        amountDetails,
-        "apiKey",
-        "total_amount",
-        "value",
-        totalAmount
-      );
-    });
-
-    setCalculationDetails(() => {
-      let item = updateObjectInArray(
-        calculationDetails,
-        "apiKey",
-        "final_amount",
-        "value",
-        final_amount
-      );
-
-      return item;
-    });
+    const final_amount_after_broker =
+      formValues.broker_commission > 0
+        ? final_amount - formValues.broker_commission
+        : final_amount;
 
     try {
       await form.validateFields();
       enableSubmit(true);
+      form.setFieldsValue({ total_amount: totalAmount });
+      form.setFieldsValue({ final_amount: final_amount_after_broker });
     } catch (errorInfo) {
       console.log("Failed:", errorInfo);
     }
@@ -232,25 +185,25 @@ export function Bill() {
         dayjs(values?.date_of_booking?.[0]).format("DD-MM-YYYY"),
         dayjs(values?.date_of_booking?.[1]).format("DD-MM-YYYY"),
       ],
-      final_amount: calculationDetails.find(
-        (item) => item.apiKey === "final_amount"
-      ).value,
-      total_amount: amountDetails.find((item) => item.apiKey === "total_amount")
-        .value,
+      date_of_entry: dayjs(values?.date_of_entry).format("DD-MM-YYYY"),
       isIncome: true,
     };
-
+    console.log(apiBody);
+    setLoading(true);
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/bill`,
         apiBody
       );
+      setLoading(false);
+      response.status === 201 && toastSuccess();
       if (!response.status === 201) {
         throw new Error("Network response was not ok");
       }
-      // response.status === 201 && handleClearForm();
     } catch (error) {
       console.log(error);
+      toastError();
+      setLoading(false);
     }
   };
 
@@ -261,7 +214,6 @@ export function Bill() {
   ) {
     return <Loader />;
   }
-  console.log(amountDetails, calculationDetails);
   return (
     <div className="bill_container">
       <div className="bill_container_title">Create Entry</div>
@@ -301,14 +253,13 @@ export function Bill() {
             </Button>
           </Col>
           <Col>
-            {" "}
             <Button type="primary" onClick={handleClearForm}>
               Clear
             </Button>
           </Col>
           {isSubmitEnabled && (
             <Col>
-              <Button type="primary" onClick={handleSubmit}>
+              <Button type="primary" loading={loading} onClick={handleSubmit}>
                 Submit
               </Button>
             </Col>
@@ -359,7 +310,6 @@ const RenderFiled = ({ field, handleChangeInFileds, findOptions, id }) => {
   const style = {
     width: "100%",
   };
-
   const { RangePicker } = DatePicker;
 
   const renderFormInputs = () => {
@@ -369,7 +319,22 @@ const RenderFiled = ({ field, handleChangeInFileds, findOptions, id }) => {
           <Select
             options={findOptions(field.apiKey)}
             onSelect={(e) => {
-              handleChangeInFileds(e, field.name, id);
+              handleChangeInFileds(e, field.apiKey, id);
+            }}
+            // value={field.value}
+            style={style}
+            placeholder={field.placeholder}
+            disabled={field.isDisabledPermanently ?? Boolean(field.disabled)}
+          />
+        );
+      }
+      case "multidropDown": {
+        return (
+          <Select
+            mode="multiple"
+            options={findOptions(field.apiKey) ?? field.options}
+            onSelect={(e) => {
+              handleChangeInFileds(e, field.apiKey, id);
             }}
             // value={field.value}
             style={style}
@@ -382,13 +347,13 @@ const RenderFiled = ({ field, handleChangeInFileds, findOptions, id }) => {
         return (
           <Input
             onChange={(e) => {
-              handleChangeInFileds(e.target.value, e.target.name, id);
+              handleChangeInFileds(e.target.value, field.apiKey, id);
             }}
             // value={field.value}
             name={field.name}
             style={style}
             disabled={field.isDisabledPermanently ?? Boolean(field.disabled)}
-            status={field.validation}
+            // status={field.validation}
             placeholder={field.placeholder}
           />
         );
@@ -399,7 +364,7 @@ const RenderFiled = ({ field, handleChangeInFileds, findOptions, id }) => {
             name={field.name}
             // value={field.value}
             onChange={(e) => {
-              handleChangeInFileds(e, field.name, id);
+              handleChangeInFileds(e, field.apiKey, id);
             }}
             style={style}
             disabled={field.isDisabledPermanently ?? Boolean(field.disabled)}
@@ -416,15 +381,18 @@ const RenderFiled = ({ field, handleChangeInFileds, findOptions, id }) => {
             // value={dayjs(field.value, "DD-MM-YYYY")}
             style={style}
             placeholder={field.placeholder}
+            format={"DD/MM/YYYY"}
           />
         );
       }
       case "dateRangePicker": {
         return (
           <RangePicker
-            onChange={(dates) => handleChangeInFileds(dates, field.name, id)}
+            style={style}
+            onChange={(dates) => handleChangeInFileds(dates, field.apiKey, id)}
             // value={field.value}
             format={"DD/MM/YYYY"}
+            placeholder={field.placeholder}
           />
         );
       }
@@ -433,7 +401,7 @@ const RenderFiled = ({ field, handleChangeInFileds, findOptions, id }) => {
           <Radio.Group
             name={field.name}
             onChange={(e) => {
-              handleChangeInFileds(e.target.value, e.target.name, id);
+              handleChangeInFileds(e.target.value, field.apiKey, id);
             }}
             // value={field.value}
           >
