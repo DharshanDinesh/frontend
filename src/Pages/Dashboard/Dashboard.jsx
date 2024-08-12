@@ -173,13 +173,16 @@ export function Dashboard() {
   const handleExport = () => {
     const groupDataByStayName = (data) => {
       return data.reduce((acc, item) => {
-        if (!acc[item?.["Stay Name"]]) {
-          acc[item["Stay Name"]] = [];
+        if (!acc[item?.["stay_name"]]) {
+          acc[item["stay_name"]] = [];
         }
-        acc[item["Stay Name"]].push(item);
+        acc[item["stay_name"]].push(item);
         return acc;
       }, {});
     };
+    const column_Order = fields
+      .sort((a, b) => a.order - b.order)
+      .map((item) => item.name);
 
     const removeKeys = (obj, keys) => {
       const newObj = { ...obj };
@@ -189,44 +192,7 @@ export function Dashboard() {
       return newObj;
     };
 
-    const headerNameMapping = fields.reduce((acc, item) => {
-      return { ...acc, [item.apiKey]: item.name };
-    }, {});
-
-    const renameHeaders = (data, headerMapping = headerNameMapping) => {
-      return data.map((item) => {
-        const newItem = {};
-        for (const key in item) {
-          if (headerMapping[key]) {
-            newItem[headerMapping[key]] = item[key];
-          } else {
-            newItem[key] = item[key];
-          }
-        }
-        return newItem;
-      });
-    };
-
-    const renamed = renameHeaders(handleCommonFilter(billItems));
-    const groupedData = groupDataByStayName(renamed);
-
-    const orderColumns = (data, columnOrder) => {
-      return data?.map((item) => {
-        const orderedItem = {};
-        columnOrder.forEach((key) => {
-          if (Object.prototype.hasOwnProperty.call(item, key)) {
-            orderedItem[key] = item[key];
-          } else {
-            orderedItem[key] = ""; // Ensure that all columns are present
-          }
-        });
-        return orderedItem;
-      });
-    };
-
-    const column_Order = fields
-      .sort((a, b) => a.order - b.order)
-      .map((item) => item.name);
+    const groupedData = groupDataByStayName(handleCommonFilter(billItems));
 
     const workbook = new ExcelJS.Workbook();
 
@@ -236,86 +202,95 @@ export function Dashboard() {
       );
       filteredData = filteredData.map((item) => ({
         ...item,
-        ["Type"]: item["Type"] ? "Income" : "Expense",
-        ["GST Transction"]: item["GST Transction"] ? "Yes" : "No",
-        ["GST Transction (Expense)"]: item["GST Transction (Expense)"]
+        ["isIncome"]: item["isIncome"] ? "Income" : "Expense",
+        ["gst_transction"]: item["gst_transction"] ? "Yes" : "No",
+        ["gst_transction_expense"]: item["gst_transction_expense"]
           ? "Yes"
           : "No",
-        ["Date Of Booking"]: item["Type"]
-          ? `${item["Date Of Booking"]?.[0]} to ${item["Date Of Booking"]?.[1]}`
+        ["date_of_booking"]: item["isIncome"]
+          ? `${item["date_of_booking"]?.[0]} to ${item["date_of_booking"]?.[1]}`
           : "",
-        ["Does Amount Received as Cash"]: item["Does Amount Received as Cash"]
-          ? "Yes"
-          : "No",
-        ["Profit / Loss Amount"]: item["Type"]
-          ? item["Income After tax"]
-          : item["Total Expense"],
-        ["Amount Credited to"]: item["Amount Credited to"].join(" , "),
+        ["profit_loss"]: item["isIncome"]
+          ? item["final_amount"]
+          : item["total_expense"],
+        ["amount_credited_to"]: item["amount_credited_to"]
+          ? item["amount_credited_to"].join(" , ")
+          : "",
       }));
-
-      filteredData = orderColumns(filteredData, column_Order);
 
       const worksheet = workbook.addWorksheet(name);
 
-      // Add headers
-      const headers = Object.keys(filteredData[0]);
-      worksheet.addRow(headers);
+      const generateCol = fields
+        .map((d) => ({
+          header: d.name,
+          key: d.apiKey,
+          width: 25,
+          calculateTotal: d.calculateTotal,
+        }))
+        .sort((a, b) => a.order - b.order);
 
-      // Add data
-      filteredData.forEach((row) => {
-        worksheet.addRow(Object.values(row));
-      });
-
-      // Set column widths based on maximum length of content in each column
-      headers.forEach((header, i) => {
-        let maxLength = header.length;
-        filteredData.forEach((row) => {
-          const cellValue = row[header];
-          if (cellValue && cellValue.toString().length > maxLength) {
-            maxLength = cellValue.toString().length;
-          }
-        });
-        worksheet.getColumn(i + 1).width = maxLength + 2; // +2 for padding
-      });
-
-      // Apply styles to the first row (header row)
-      const headerRow = worksheet.getRow(1);
-      headerRow.font = { bold: true, size: 11, name: "Calibri" };
-      headerRow.alignment = { horizontal: "center", vertical: "center" };
-      headerRow.eachCell((cell) => {
+      worksheet.columns = generateCol;
+      worksheet.getRow(1).eachCell((cell) => {
         cell.fill = {
           type: "pattern",
           pattern: "solid",
-          fgColor: { argb: "FFFFAA00" }, // Light orange background color
+          fgColor: { argb: "FFFF00" }, // Yellow background
+        };
+        cell.border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
+        };
+      });
+      // Add data
+      filteredData.forEach((row) => {
+        worksheet.addRow(row);
+      });
+
+      const totalsRow = {};
+      generateCol.forEach((column) => {
+        if (column.calculateTotal) {
+          totalsRow[column.key] = filteredData.reduce(
+            (sum, row) => sum + (row[column.key] || 0),
+            0
+          );
+        } else {
+          totalsRow[column.key] = "";
+        }
+      });
+
+      // Add the totals row to the worksheet
+      const lastRow = worksheet.addRow(totalsRow);
+      lastRow.eachCell((cell) => {
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "ADD8E6" }, // Light blue background
+        };
+        cell.border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
         };
       });
 
-      // Center-align all cells and apply specific styling to the last column
-      worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
-        row.eachCell({ includeEmpty: false }, (cell, colNumber) => {
-          cell.alignment = { horizontal: "center", vertical: "center" };
-          // Apply styling to the last column (Profit / Loss Amount)
-          if (colNumber === headers.length) {
-            cell.font = { color: "black", bold: true };
-            cell.fill = {
-              type: "pattern",
-              pattern: "solid",
-              fgColor: { argb: "FFFFAA00" },
-            };
-            cell.font = { bold: true, size: 11, name: "Calibri" };
-          }
-        });
+      // Apply background color to the last column (for all rows)
+      worksheet.eachRow((row) => {
+        const lastCell = row.getCell(row.cellCount);
+        lastCell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FF6347" }, // Tomato background color
+        };
+        lastCell.border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
+        };
       });
-
-      // Add total amount row
-      const totalRow = worksheet.getRow(filteredData.length + 2);
-      totalRow.getCell(headers.length - 1).value = "Total Amount";
-      totalRow.getCell(headers.length).value = {
-        formula: `SUM(${worksheet.getColumn(headers.length).letter}2:${
-          worksheet.getColumn(headers.length).letter
-        }${filteredData.length + 1})`,
-      };
-      totalRow.font = { bold: true };
     });
 
     // Save the workbook
