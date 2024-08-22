@@ -1,0 +1,16 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+
+export function RedirectToHome() {
+  const navigate = useNavigate();
+  console.log("clled");
+  React.useEffect(() => {
+    // Replace with your conditional logic
+    const shouldRedirect = true;
+    if (shouldRedirect) {
+      navigate("/", { replace: true });
+    }
+  }, [navigate]);
+
+  return null; // Render nothing, as this component only redirects
+}

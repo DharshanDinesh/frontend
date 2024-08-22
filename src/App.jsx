@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -11,7 +12,10 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <></>,
+        lazy: async () => {
+          let { Home } = await import("./Pages/Home/Home");
+          return { Component: Home };
+        },
       },
       {
         path: "/income",
@@ -33,6 +37,15 @@ const router = createBrowserRouter([
         lazy: async () => {
           let { Dashboard } = await import("./Pages/Dashboard/Dashboard");
           return { Component: Dashboard };
+        },
+      },
+      {
+        path: "*",
+        lazy: async () => {
+          let { RedirectToHome } = await import(
+            "./Components/RedirectComponent/RedirectToHome"
+          );
+          return { Component: RedirectToHome };
         },
       },
     ],

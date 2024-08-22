@@ -180,9 +180,6 @@ export function Dashboard() {
         return acc;
       }, {});
     };
-    const column_Order = fields
-      .sort((a, b) => a.order - b.order)
-      .map((item) => item.name);
 
     const removeKeys = (obj, keys) => {
       const newObj = { ...obj };
