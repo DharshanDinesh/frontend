@@ -9,15 +9,22 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       react(),
-      vitePluginImp({
-        libList: [
-          {
-            libName: 'antd',
-            style: (name) => `antd/es/${name}/style/css`,
-          },
-        ],
-      }),
+      // vitePluginImp({
+      //   libList: [
+      //     {
+      //       libName: 'antd',
+      //       style: (name) => `antd/es/${name}/style/css`,
+      //     },
+      //   ],
+      // }),
     ],
+    css: {
+      preprocessorOptions: {
+        less: {
+          javascriptEnabled: true,
+        },
+      },
+    },
     server: {
       host: '0.0.0.0',
       port: parseInt(env.VITE_PORT) || 3000,
@@ -35,6 +42,5 @@ export default defineConfig(({ mode }) => {
       },
       chunkSizeWarningLimit: 1500, // Set the chunk size limit to 1500 KB (1.5 MB)
     },
-
   }
 })

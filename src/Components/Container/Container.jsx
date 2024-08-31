@@ -5,6 +5,7 @@ import { SideBar } from "../Sider/Sider";
 import { Header } from "../Header/Header";
 
 const { Content } = Layout;
+
 export const Container = () => {
   return (
     <Layout>

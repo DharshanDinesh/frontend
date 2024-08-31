@@ -46,7 +46,7 @@ export function Expense() {
         label: item.name,
         value: item.name,
       }));
-      return [...val, { label: "All", value: "All" }];
+      return [...val];
     } else if (key === "amount_debited_from" && accountInfo.isSuccess) {
       return [...accountInfo.data, { name: "Cash" }].map((item) => ({
         label: item.name,
