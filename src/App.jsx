@@ -1,42 +1,83 @@
 /* eslint-disable no-unused-vars */
 import { Container } from "./Components/Container/Container";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from "react-router-dom";
 import "./App.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useContext } from "react";
+import { ContextStore } from "./Provider";
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Container />,
-    children: [
+export function App() {
+  const router = ({ isAuthenticated = false }) => {
+    return createBrowserRouter([
       {
         path: "/",
-        lazy: async () => {
-          let { Home } = await import("./Pages/Home/Home");
-          return { Component: Home };
-        },
+        element: <Container />,
+        children: [
+          {
+            path: "/",
+            lazy: async () => {
+              if (!isAuthenticated) {
+                return { Component: () => <Navigate to="/login" /> };
+              } else {
+                return {
+                  Component: () => <Navigate to="/home" />,
+                };
+              }
+            },
+          },
+          {
+            path: "/home",
+            lazy: async () => {
+              console.log("isAuthenticated", isAuthenticated);
+              if (!isAuthenticated) {
+                return { Component: () => <Navigate to="/login" /> };
+              }
+              let { Home } = await import("./Pages/Home/Home");
+              return { Component: Home };
+            },
+          },
+          {
+            path: "/income",
+            lazy: async () => {
+              if (!isAuthenticated) {
+                return { Component: () => <Navigate to="/login" /> };
+              }
+              let { Bill } = await import("./Pages/Bill/Bill");
+              return { Component: Bill };
+            },
+          },
+          {
+            path: "/expense",
+            lazy: async () => {
+              if (!isAuthenticated) {
+                return { Component: () => <Navigate to="/login" /> };
+              }
+              let { Expense } = await import("./Pages/Expense/Expense");
+              return { Component: Expense };
+            },
+          },
+          {
+            path: "/dashboard",
+            lazy: async () => {
+              if (!isAuthenticated) {
+                return { Component: () => <Navigate to="/login" /> };
+              }
+              let { Dashboard } = await import("./Pages/Dashboard/Dashboard");
+              return { Component: Dashboard };
+            },
+          },
+        ],
       },
       {
-        path: "/income",
+        path: "/login",
         lazy: async () => {
-          let { Bill } = await import("./Pages/Bill/Bill");
-          return { Component: Bill };
-        },
-      },
-
-      {
-        path: "/expense",
-        lazy: async () => {
-          let { Expense } = await import("./Pages/Expense/Expense");
-          return { Component: Expense };
-        },
-      },
-      {
-        path: "/dashboard",
-        lazy: async () => {
-          let { Dashboard } = await import("./Pages/Dashboard/Dashboard");
-          return { Component: Dashboard };
+          let { LoginForm } = await import("./Pages/Login/Login");
+          return { Component: LoginForm };
         },
       },
       {
@@ -48,14 +89,15 @@ const router = createBrowserRouter([
           return { Component: RedirectToHome };
         },
       },
-    ],
-  },
-]);
-export function App() {
+    ]);
+  };
+  const { store } = useContext(ContextStore);
   return (
     <>
       <ToastContainer />
-      <RouterProvider router={router} />
+      <RouterProvider
+        router={router({ isAuthenticated: store?.ui?.isLoggedIn })}
+      />
     </>
   );
 }

@@ -1,17 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
 import axios from "axios";
-import {
-  List,
-  Input,
-  Button,
-  Row,
-  Col,
-  Select,
-  Space,
-  Typography,
-  Modal,
-} from "antd";
+import { List, Input, Button, Row, Col, Select, Typography, Modal } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
 export const Home = () => {
@@ -57,6 +47,7 @@ export const SupportDataCenterCRUD = ({
   const [newTodo, setNewTodo] = useState("");
   const [select, setSelect] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingAdd, setIsLoadingAdd] = useState(false);
   useEffect(() => {
     fetchTodos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -77,6 +68,7 @@ export const SupportDataCenterCRUD = ({
   };
 
   const addTodo = async () => {
+    setIsLoadingAdd(true);
     if (title === "Rooms") {
       addRooms();
     } else {
@@ -89,6 +81,8 @@ export const SupportDataCenterCRUD = ({
       );
       setTodos([...todos, response.data]);
       setNewTodo("");
+      setIsLoadingAdd(false);
+
       title === "Stay" && refreshRoom((prev) => !prev);
     }
   };
@@ -104,6 +98,7 @@ export const SupportDataCenterCRUD = ({
     setTodos(response.data);
     setNewTodo("");
     setSelect(null);
+    setIsLoadingAdd(false);
   };
 
   const deleteTodo = async (id) => {
@@ -153,7 +148,7 @@ export const SupportDataCenterCRUD = ({
       style={{
         margin: "1rem",
         padding: "0.75rem",
-        border: "1px solid red",
+        border: "1px solid #9c9c9c",
         borderRadius: "1rem",
       }}
     >
@@ -198,7 +193,7 @@ export const SupportDataCenterCRUD = ({
             marginLeft: "2%",
           }}
         >
-          <Button onClick={addTodo} type="primary">
+          <Button onClick={addTodo} type="primary" loading={isLoadingAdd}>
             {`Add ${title}`}
           </Button>
         </div>

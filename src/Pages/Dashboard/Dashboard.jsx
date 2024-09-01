@@ -1,4 +1,4 @@
-import { Button, Col, Row, Select, Table } from "antd";
+import { Button, Col, Row, Select, Space, Table } from "antd";
 import { useState } from "react";
 import dayjs from "dayjs";
 import { fields } from "../../Utils/constant";
@@ -8,6 +8,8 @@ import { helperApi } from "../../Utils/API/helperAPI";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import "./dashboard.css";
+import { DeleteOutlined } from "@ant-design/icons";
+import axios from "axios";
 
 export function Dashboard() {
   const { RangePicker } = DatePicker;
@@ -155,7 +157,6 @@ export function Dashboard() {
         },
       };
     }
-
     return {
       title: (
         <div>
@@ -345,11 +346,23 @@ export function Dashboard() {
   if (billInfo.error) {
     return <div>Error: {billInfo.error}</div>;
   }
+  const handleDelete = async (id) => {
+    await axios.delete(`${import.meta.env.VITE_API_URL}/${"bill"}/${id}`);
+    billInfo.refetch();
+  };
+  console.log(billInfo.isFetching);
+
   return (
-    <div>
+    <div style={{ margin: "1rem" }}>
       <Row justify="end" align="middle" gutter={[16, 24]}>
         <Col xs={24} sm={12} md={8} lg={4} span={4}>
-          <Button onClick={handleExport}>Export to Excel</Button>{" "}
+          <Button
+            type="primary"
+            onClick={handleExport}
+            style={{ margin: "12px" }}
+          >
+            Export to Excel
+          </Button>
         </Col>
       </Row>
       <Row justify="space-around" align="middle" gutter={[16, 24]}>
@@ -429,11 +442,31 @@ export function Dashboard() {
       <div style={{ margin: "0.5rem" }}>
         <Table
           dataSource={filteredTable}
-          columns={columns}
+          columns={[
+            ...columns,
+            {
+              title: "Action",
+              key: "action",
+              dataIndex: "_id",
+              align: "center",
+              render: (a, b) => (
+                <Space size="small">
+                  <Button
+                    type="primary"
+                    icon={<DeleteOutlined />}
+                    danger
+                    onClick={() => handleDelete(a, b)}
+                  >
+                    Delete
+                  </Button>
+                </Space>
+              ),
+            },
+          ]}
           rowKey="_id"
           scroll={{
-            x: 4000,
-            y: 4000,
+            x: 2000,
+            y: 2000,
           }}
           size="small"
           loading={billInfo.isFetching}

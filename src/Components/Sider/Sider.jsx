@@ -9,6 +9,7 @@ import { Menu, Layout } from "antd";
 import { ContextStore } from "../../Provider";
 import "./Sider.css";
 import { useNavigate } from "react-router-dom";
+import { action } from "../../useProvider";
 const { Sider: Siders } = Layout;
 
 export function SideBar() {
@@ -17,14 +18,24 @@ export function SideBar() {
   const navigate = useNavigate();
 
   const onClick = (e) => {
-    dispatch({ type: "SET_CURRENT_PAGE", payload: e.key });
     navigate(`/${e.key}`);
   };
 
+  const handleNavBarClick = () => {
+    dispatch({
+      type: action.SET_UI_NAV_STATUS,
+      payload: !ui.isSideNaveClosed,
+    });
+  };
+
   return (
-    <Siders trigger={null} collapsible collapsed={ui.isSideNaveClosed}>
+    <Siders
+      collapsed={ui.isSideNaveClosed}
+      collapsible
+      onCollapse={(value) => handleNavBarClick(value)}
+    >
       <div className="demo-logo-vertical">
-        {ui.isSideNaveClosed ? "BS" : "Benny Stay"}
+        {ui.isSideNaveClosed ? "LPHS" : "Le Pondy Home Stay"}
       </div>
       <Menu
         theme="dark"
@@ -33,7 +44,7 @@ export function SideBar() {
         onClick={onClick}
         items={[
           {
-            key: "",
+            key: "home",
             icon: <UserOutlined />,
             label: "Home",
           },

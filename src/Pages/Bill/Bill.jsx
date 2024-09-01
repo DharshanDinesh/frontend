@@ -111,7 +111,7 @@ export function Bill() {
       />,
       {
         position: "top-right",
-        autoClose: 4000,
+        autoClose: 2000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
@@ -127,7 +127,7 @@ export function Bill() {
   const toastError = () => {
     toast.error(<Msg title="Error occured" text="Something went wrong" />, {
       position: "top-right",
-      autoClose: 4000,
+      autoClose: 2000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,

@@ -320,7 +320,6 @@ export const fields = [
         apiKey: "profit_loss",
         order: 31,
         calculateTotal: true
-
     },
 ];
 

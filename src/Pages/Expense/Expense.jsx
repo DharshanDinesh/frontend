@@ -25,7 +25,6 @@ export function Expense() {
   const [form] = Form.useForm();
 
   const [expenseDetails, setExpenseDetails] = useState(expenseFileds);
-
   const [isSubmitEnabled, enableSubmit] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -57,6 +56,7 @@ export function Expense() {
   const handleClearForm = () => {
     // window.location.reload();
     form.resetFields();
+    enableSubmit(false);
   };
 
   const handleChangeInFileds = (e, name, id) => {
@@ -117,7 +117,7 @@ export function Expense() {
       />,
       {
         position: "top-right",
-        autoClose: 4000,
+        autoClose: 2000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
@@ -133,7 +133,7 @@ export function Expense() {
   const toastError = () => {
     toast.error(<Msg title="Error occured" text="Something went wrong" />, {
       position: "top-right",
-      autoClose: 4000,
+      autoClose: 2000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
