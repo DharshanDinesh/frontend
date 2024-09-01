@@ -17,7 +17,7 @@ import dayjs from "dayjs";
 import { incomeFields } from "../../Utils/constant";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
-import { helperApi, updateObjectInArray } from "../../Utils/API/helperAPI";
+import { helperApi } from "../../Utils/API/helperAPI";
 import { Loader } from "../../Components/Loader/Loader";
 import { toast } from "react-toastify";
 
@@ -64,34 +64,39 @@ export function Bill() {
 
   const findOptions = (key) => {
     if (key === "stay_name" && hotelInfo.isSuccess) {
-      return hotelInfo.data.map((item) => ({
+      return hotelInfo.data.map((item, index) => ({
         label: item.name,
         value: item.name,
+        key: item._id,
       }));
     } else if (key === "booking_from" && sourceInfo.isSuccess) {
       return sourceInfo.data.map((item) => ({
         label: item.name,
         value: item.name,
+        key: item._id,
       }));
     } else if (key === "currency_received" && currencyInfo.isSuccess) {
       return currencyInfo.data.map((item) => ({
         label: item.name,
         value: item.name,
+        key: item._id,
       }));
     } else if (key === "amount_credited_to" && accountInfo.isSuccess) {
       return accountInfo.data.map((item) => ({
         label: item.name,
         value: item.name,
+        key: item._id,
       }));
     } else if (key === "room_no" && hotelInfo.isSuccess) {
       const hotelName = form.getFieldValue("stay_name");
-      const a = hotelInfo.data
-        .find((d) => d.name === hotelName)
-        ?.rooms?.map((item) => ({
-          label: item,
-          value: item,
-        }));
-      return a;
+      const hotelRomms =
+        hotelInfo.data.find((d) => d.name === hotelName)?.rooms ?? [];
+
+      return hotelRomms.map((item) => ({
+        label: item.name,
+        value: item.name,
+        key: item._id,
+      }));
     }
   };
   const Msg = ({ title, text }) => {
@@ -140,11 +145,9 @@ export function Bill() {
     form.resetFields();
     enableSubmit(false);
   };
-
   const handleChangeInFileds = () => {
     setDummy((prev) => !prev);
   };
-
   const handleCalculate = async () => {
     const formValues = await form.getFieldValue();
     console.log(formValues, "adsf");
@@ -176,7 +179,6 @@ export function Bill() {
       console.log("Failed:", errorInfo);
     }
   };
-
   const handleSubmit = async () => {
     const values = await form.validateFields();
     let apiBody = {
