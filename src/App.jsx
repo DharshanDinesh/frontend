@@ -71,6 +71,18 @@ export function App() {
               return { Component: Dashboard };
             },
           },
+          {
+            path: "/customer",
+            lazy: async () => {
+              if (!isAuthenticated) {
+                return { Component: () => <Navigate to="/login" /> };
+              }
+              let { CustomerForm } = await import(
+                "./Pages/CustomerDetails/CustomerDetails"
+              );
+              return { Component: CustomerForm };
+            },
+          },
         ],
       },
       {

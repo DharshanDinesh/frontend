@@ -63,6 +63,11 @@ export function SideBar() {
             icon: <DashboardOutlined />,
             label: "Dashboard",
           },
+          {
+            key: "customer",
+            icon: <DashboardOutlined />,
+            label: "Customer Details",
+          },
         ]}
       />
     </Siders>
