@@ -213,28 +213,39 @@ export const SupportDataCenterCRUD = ({
                   onDelete={deleteTodo}
                 />
               )}
+              style={{
+                maxHeight: "300px", // Set max height for each hotel's room list
+                overflowY: "auto", // Enable vertical scrolling
+              }}
             />
           )}
-          {title === "Rooms" &&
-            todos.map((hotel) => (
-              <>
-                {hotel.name}
-                <List
-                  bordered
-                  dataSource={hotel.rooms}
-                  renderItem={(item) => (
-                    <TodoItem
-                      key={item.id}
-                      todo={item}
-                      onEdit={renameRoom}
-                      onDelete={deleteRooms}
-                      type={"rooms"}
-                      hotel={hotel}
-                    />
-                  )}
-                />
-              </>
-            ))}
+          <div
+            style={{
+              maxHeight: "300px", // Set max height for each hotel's room list
+              overflowY: "auto", // Enable vertical scrolling
+            }}
+          >
+            {title === "Rooms" &&
+              todos.map((hotel) => (
+                <>
+                  {hotel.name}
+                  <List
+                    bordered
+                    dataSource={hotel.rooms}
+                    renderItem={(item) => (
+                      <TodoItem
+                        key={item.id}
+                        todo={item}
+                        onEdit={renameRoom}
+                        onDelete={deleteRooms}
+                        type={"rooms"}
+                        hotel={hotel}
+                      />
+                    )}
+                  />
+                </>
+              ))}
+          </div>
         </>
       )}
     </div>

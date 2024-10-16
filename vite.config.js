@@ -8,7 +8,15 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
-      react()
+      react(),
+      // vitePluginImp({
+      //   libList: [
+      //     {
+      //       libName: 'antd',
+      //       style: (name) => `antd/es/${name}/style/css`,
+      //     },
+      //   ],
+      // }),
     ],
     css: {
       preprocessorOptions: {
