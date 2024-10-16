@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Form,
   Input,
@@ -11,6 +11,7 @@ import {
   Col,
   Table,
   Space,
+  Select,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import axios from "axios";
@@ -40,11 +41,19 @@ export const CustomerForm = () => {
 
   const [form] = Form.useForm();
 
+  const hotelInfo = useQuery({
+    queryKey: ["hotel"],
+    queryFn: () => helperApi("hotel"),
+  });
   const sourceInfo = useQuery({
     queryKey: ["customers"],
     queryFn: () => helperApi("customers"),
   });
+  const [stayName, setStayName] = useState(null);
 
+  const handleValuesChange = (_changedValues, allValues) => {
+    setStayName(allValues.stayName); // Update state on form value change
+  };
   const convertPdfToImage = async (pdfBytes) => {
     let pdfData;
 
@@ -130,9 +139,6 @@ export const CustomerForm = () => {
       }
     });
   };
-
-  // Helper function to convert PDF pages to canvas image
-
   const handleFileChange = async (info) => {
     try {
       const files = info.fileList;
@@ -247,6 +253,16 @@ export const CustomerForm = () => {
       key: "phone",
     },
     {
+      title: "Stay Name",
+      dataIndex: "stayName",
+      key: "stayName",
+    },
+    {
+      title: "Room No.",
+      dataIndex: "roomNumber",
+      key: "roomNumber",
+    },
+    {
       title: "Check-In",
       dataIndex: "checkIn",
       key: "checkIn",
@@ -291,7 +307,12 @@ export const CustomerForm = () => {
     <div style={{ padding: "20px" }}>
       <div className="bill_container_title">Create Customer Entry</div>
       <Row justify="center">
-        <Form form={form} layout="horizontal" onFinish={onFinish}>
+        <Form
+          form={form}
+          layout="horizontal"
+          onFinish={onFinish}
+          onValuesChange={handleValuesChange} // Track value changes
+        >
           <Form.Item
             name="name"
             label="Name"
@@ -299,7 +320,6 @@ export const CustomerForm = () => {
           >
             <Input placeholder="Enter name" />
           </Form.Item>
-
           <Form.Item
             name="address"
             label="Address"
@@ -313,7 +333,6 @@ export const CustomerForm = () => {
           >
             <Input placeholder="Enter address" />
           </Form.Item>
-
           <Form.Item
             name="phone"
             label="Phone"
@@ -323,7 +342,6 @@ export const CustomerForm = () => {
           >
             <Input placeholder="Enter phone number" />
           </Form.Item>
-
           <Form.Item
             label="Check In - Check Out"
             name="CheckInOut"
@@ -333,7 +351,42 @@ export const CustomerForm = () => {
           >
             <RangePicker />
           </Form.Item>
-
+          <Form.Item
+            label="Stay Name"
+            name="stayName"
+            rules={[{ required: true, message: "Please enter Stay Name!" }]}
+          >
+            <Select
+              options={
+                Array.isArray(hotelInfo?.data)
+                  ? hotelInfo?.data?.map((item) => ({
+                      label: item.name,
+                      value: item.name,
+                      key: item._id,
+                    }))
+                  : []
+              }
+            />
+          </Form.Item>
+          <Form.Item
+            label="Room Number"
+            name="roomNumber"
+            rules={[{ required: true, message: "Please enter Room No." }]}
+          >
+            <Select
+              options={
+                stayName && Array.isArray(hotelInfo?.data)
+                  ? hotelInfo?.data
+                      ?.find((val) => val.name === stayName)
+                      ?.rooms?.map((item) => ({
+                        label: item.name,
+                        value: item.name,
+                        key: item._id,
+                      }))
+                  : []
+              }
+            />
+          </Form.Item>
           <Form.Item
             name="file"
             label="Upload File"
@@ -353,7 +406,6 @@ export const CustomerForm = () => {
               <Button icon={<UploadOutlined />}>Upload</Button>
             </Upload>
           </Form.Item>
-
           <Form.Item>
             <Row justify="space-evenly">
               <Col>
@@ -404,14 +456,19 @@ const styles = StyleSheet.create({
     borderRadius: 5, // Round the corners for a nicer appearance
     backgroundColor: "#f9f9f9", // Light background color to differentiate the section
   },
+  flexContainer: {
+    flexDirection: "row",
+    margin: 5,
+    alignItems: "center",
+  },
   textTitle: {
     fontSize: 14, // Slightly larger font for the field names
-    fontWeight: "bold", // Make the field names bold
-    marginBottom: 5,
+    width: "30%",
+    marginRight: "3%",
   },
   textValue: {
-    fontSize: 12, // Normal font size for the values
-    marginBottom: 10, // Add some space between each field
+    fontSize: 14, // Normal font size for the values
+    width: "50%",
   },
   imageSection: {
     flexDirection: "row",
@@ -425,7 +482,7 @@ const styles = StyleSheet.create({
   image: {
     width: "50%", // Adjust the size for consistency
     height: "auto",
-    margin: 10, // Space between images
+    margin: "5 0", // Space between images
     border: "1px solid #ccc", // Add a light border to images
     borderRadius: 5, // Slightly rounded corners
   },
@@ -438,6 +495,8 @@ const MyDocument = (props) => {
     checkIn = "",
     checkOut = "",
     phoneNumber = "",
+    stayName = "",
+    roomNumber = "",
     // eslint-disable-next-line no-unsafe-optional-chaining
   } = props?.info ?? {};
   console.log(props);
@@ -449,20 +508,38 @@ const MyDocument = (props) => {
 
         {/* Text Section */}
         <View style={styles.textSection}>
-          <Text style={styles.textTitle}>Name:</Text>
-          <Text style={styles.textValue}>{name}</Text>
-
-          <Text style={styles.textTitle}>Address:</Text>
-          <Text style={styles.textValue}>{address}</Text>
-
-          <Text style={styles.textTitle}>Phone Number:</Text>
-          <Text style={styles.textValue}>{phoneNumber}</Text>
-
-          <Text style={styles.textTitle}>Check-In:</Text>
-          <Text style={styles.textValue}>{checkIn}</Text>
-
-          <Text style={styles.textTitle}>Check-Out:</Text>
-          <Text style={styles.textValue}>{checkOut}</Text>
+          <View style={styles.flexContainer}>
+            <Text style={styles.textTitle}>Name:</Text>
+            <Text style={styles.textValue}>{name}</Text>
+          </View>
+          <View style={styles.flexContainer}>
+            <Text style={styles.textTitle}>Address:</Text>
+            <Text style={styles.textValue}>{address}</Text>
+          </View>
+          <View style={styles.flexContainer}>
+            <Text style={styles.textTitle}>Phone Number:</Text>
+            <Text style={styles.textValue}>{phoneNumber}</Text>
+          </View>
+          <View style={styles.flexContainer}>
+            <Text style={styles.textTitle}>Stay Name:</Text>
+            <Text style={styles.textValue}>{stayName}</Text>
+          </View>
+          <View style={styles.flexContainer}>
+            <Text style={styles.textTitle}>Room Number:</Text>
+            <Text style={styles.textValue}>{roomNumber}</Text>
+          </View>
+          <View style={styles.flexContainer}>
+            <Text style={styles.textTitle}>Check-In:</Text>
+            <Text style={styles.textValue}>
+              {dayjs(checkIn).format("DD-MM-YYYY")}
+            </Text>
+          </View>
+          <View style={styles.flexContainer}>
+            <Text style={styles.textTitle}>Check-Out:</Text>
+            <Text style={styles.textValue}>
+              {dayjs(checkOut).format("DD-MM-YYYY")}
+            </Text>
+          </View>
         </View>
 
         {/* Image Section */}
