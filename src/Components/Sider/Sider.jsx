@@ -1,9 +1,12 @@
 import { useContext } from "react";
 import {
   DollarOutlined,
-  UserOutlined,
+  HomeOutlined,
   ShoppingCartOutlined,
+  RadarChartOutlined,
+  SmileOutlined,
   DashboardOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import { Menu, Layout } from "antd";
 import { ContextStore } from "../../Provider";
@@ -45,7 +48,7 @@ export function SideBar() {
         items={[
           {
             key: "home",
-            icon: <UserOutlined />,
+            icon: <HomeOutlined />,
             label: "Home",
           },
           {
@@ -60,12 +63,12 @@ export function SideBar() {
           },
           {
             key: "dashboard",
-            icon: <DashboardOutlined />,
+            icon: <RadarChartOutlined />,
             label: "Dashboard",
           },
           {
             key: "customer",
-            icon: <DashboardOutlined />,
+            icon: <SmileOutlined />,
             label: "Customer Details",
           },
         ]}
