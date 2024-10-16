@@ -19,6 +19,7 @@ export function Dashboard() {
   const [filter2, setFilter2] = useState([]);
   const [filter3, setFilter3] = useState(null);
   const [dateRange, setDateRange] = useState([]);
+  const [dateRangeEntry, setDateRangeEntry] = useState([]);
 
   const sourceInfo = useQuery({
     queryKey: ["source"],
@@ -319,6 +320,13 @@ export function Dashboard() {
           isDateInRange(entry?.date_of_booking?.[1], type[0], type[1]))
       );
     };
+    const filterEntryByDatesEntry = (type) => (entry) => {
+      return (
+        type[0] === undefined ||
+        type[1] === undefined ||
+        isDateInRange(entry?.date_of_entry, type[0], type[1])
+      );
+    };
 
     const isDateInRange = (date, startDate, endDate) => {
       const formattedDate = dayjs(date, "DD/MM/YYYY");
@@ -338,6 +346,7 @@ export function Dashboard() {
       filterEntryByIncomeSource(filter2),
       filterEntryByGstSales(filter3),
       filterEntryByDates(dateRange),
+      filterEntryByDatesEntry(dateRangeEntry),
     ]);
   };
 
@@ -350,7 +359,6 @@ export function Dashboard() {
     await axios.delete(`${import.meta.env.VITE_API_URL}/${"bill"}/${id}`);
     billInfo.refetch();
   };
-  console.log(billInfo.isFetching);
 
   return (
     <div style={{ margin: "1rem" }}>
@@ -366,6 +374,22 @@ export function Dashboard() {
         </Col>
       </Row>
       <Row justify="space-around" align="middle" gutter={[16, 24]}>
+        <Col xs={24} sm={12} md={8} lg={4} span={5}>
+          <h4>Date Range for Entry</h4>
+          <RangePicker
+            onChange={(dates) => {
+              setDateRangeEntry(
+                dates === null
+                  ? []
+                  : [
+                      dates[0].format("DD/MM/YYYY"),
+                      dates[1].format("DD/MM/YYYY"),
+                    ]
+              );
+            }}
+            format={"DD/MM/YYYY"}
+          />
+        </Col>
         <Col xs={24} sm={12} md={8} lg={4} span={4}>
           <h4>Select Income / Expense</h4>
           <Select
@@ -422,8 +446,7 @@ export function Dashboard() {
           />
         </Col>
         <Col xs={24} sm={12} md={8} lg={4} span={5}>
-          <h4>Select Date Range</h4>
-
+          <h4>Date Range for Booking</h4>
           <RangePicker
             onChange={(dates) => {
               setDateRange(
@@ -465,10 +488,9 @@ export function Dashboard() {
           ]}
           rowKey="_id"
           scroll={{
-            x: 2000,
-            y: 2000,
+            x: 4000,
+            y: 300,
           }}
-          size="small"
           loading={billInfo.isFetching}
           pagination={false}
           className="custom-table"
