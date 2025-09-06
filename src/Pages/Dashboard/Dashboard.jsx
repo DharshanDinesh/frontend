@@ -23,16 +23,16 @@ export function Dashboard() {
 
   const sourceInfo = useQuery({
     queryKey: ["source"],
-    queryFn: () => helperApi("source"),
+    queryFn: () => helperApi("source")
   });
   const hotelInfo = useQuery({
     queryKey: ["hotel"],
-    queryFn: () => helperApi("hotel"),
+    queryFn: () => helperApi("hotel")
   });
   const billInfo = useQuery({
     queryKey: ["bill"],
     queryFn: () => helperApi("bill"),
-    initialData: {},
+    initialData: {}
   });
   function removeKeyIfCondition(arr, keyToRemove, condition) {
     return arr.map((obj) => {

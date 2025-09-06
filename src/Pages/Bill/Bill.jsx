@@ -130,7 +130,7 @@ export function Bill() {
     );
   };
   const toastError = () => {
-    toast.error(<Msg title="Error occured" text="Something went wrong" />, {
+    toast.error(<Msg title="Error occurred" text="Unable to create entry. Please try again." />, {
       position: "top-right",
       autoClose: 2000,
       hideProgressBar: false,
@@ -203,7 +203,7 @@ export function Bill() {
         throw new Error("Network response was not ok");
       }
     } catch (error) {
-      console.log(error);
+      console.error('Error submitting form:', error?.message || 'An unknown error occurred');
       toastError();
       setLoading(false);
     }

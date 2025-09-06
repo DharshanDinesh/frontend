@@ -1,0 +1,951 @@
+/* ====================
+   1. Card Base Styles
+==================== */
+.dashboard-card {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03),
+              0 2px 4px rgba(0, 0, 0, 0.03),
+              0 4px 8px rgba(0, 0, 0, 0.03);
+  height: 100%;
+}
+
+/* Card Header Styles */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  gap: 16px;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Add button styles */
+.add-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  padding: 4px 16px !important;
+  height: 32px !important;
+  font-size: 14px !important;
+  border-radius: 6px !important;
+  white-space: nowrap !important;
+}
+
+/* Modal delete button styles */
+.modal-button.delete {
+  color: #fff !important;
+  border-color: #ff4d4f !important;
+  background: transparent !important;
+}
+
+.modal-button.delete:hover {
+  color: #fff !important;
+  border-color: #ff4d4f !important;
+  background: #ff4d4f !important;
+}
+
+/* ====================
+   3. Tree Component Base
+==================== */
+.rooms-tree {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  width: 100%;
+}
+
+/* Tree Node Structure */
+.rooms-tree .ant-tree-treenode {
+  padding: 4px 0;
+  width: 100%;
+  align-items: center;
+}
+
+.rooms-tree .ant-tree-node-content-wrapper {
+  width: calc(100% - 24px);
+  transition: all 0.3s;
+  padding: 0;
+}
+
+.rooms-tree .ant-tree-switcher {
+  align-self: center;
+}
+
+/* Tree Line Customization */
+.rooms-tree .ant-tree-show-line .ant-tree-indent-unit::before {
+  border-color: #d9d9d9;
+}
+
+.ant-tree-list-holder-inner {
+  padding-right: 16px;
+}
+
+.tree-hotel-node {
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  background: #fafafa;
+  min-height: 44px;
+}
+
+/* ====================
+   4. Room Node Layout
+==================== */
+.tree-room-node {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  min-height: 40px;
+}
+
+/* Content Container */
+.room-content {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Room Information */
+.room-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0; /* Enables text truncation */
+  flex: 1;
+  margin-right: 16px;
+}
+
+/* Room Icon */
+.room-icon {
+  flex-shrink: 0;
+  font-size: 16px;
+  color: #1890ff;
+}
+
+/* Room Name Container */
+.room-name-wrapper {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 0;
+}
+
+/* Room Name Text */
+.room-name {
+  display: block;
+  font-size: 14px;
+  line-height: 1.5715;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+/* ====================
+   5. Room Actions
+==================== */
+.room-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* Action Button Base */
+.action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #595959;
+  padding: 0;
+}
+
+/* Action Button States */
+.action-button:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  color: #1890ff;
+}
+
+/* Delete Button */
+.action-button.delete:hover {
+  color: #ff4d4f;
+  background-color: #fff1f0;
+}
+
+/* Edit Button */
+.action-button.edit:hover {
+  color: #1890ff;
+  background-color: #e6f7ff;
+}
+
+/* Room Icon */
+.room-icon {
+  flex-shrink: 0;
+  font-size: 16px;
+  color: #1890ff;
+}
+
+/* Room Name Container */
+.room-name-wrapper {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 0;
+}
+
+/* Room Name Text */
+.room-name {
+  display: block;
+  font-size: 14px;
+  line-height: 1.5715;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.room-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.tree-room-node:hover {
+  background: #f5f5f5;
+}
+
+.room-actions .ant-btn {
+  margin: 0;
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 576px) {
+  .room-actions {
+    opacity: 1;
+    gap: 4px;
+  }
+  
+  .room-actions .ant-btn {
+    padding: 0 8px;
+  }
+}
+
+@media (max-width: 576px) {
+  .rooms-tree {
+    padding: 12px 8px;
+  }
+
+  .tree-room-node {
+    padding: 8px;
+  }
+
+  .room-content {
+    gap: 8px;
+  }
+
+  .room-actions {
+    opacity: 1;
+  }
+
+  .room-actions .action-button {
+    padding: 4px 8px;
+  }
+}
+
+/* ====================
+   6. Responsive Styles
+==================== */
+
+/* Small devices (phones, 576px and down) */
+@media screen and (max-width: 576px) {
+  /* Card Adjustments */
+  .dashboard-card {
+    margin-bottom: 16px;
+  }
+
+  /* Tree Component */
+  .rooms-tree {
+    padding: 12px 8px;
+  }
+
+  /* Hotel Node */
+  .tree-hotel-node {
+    padding: 8px;
+    min-height: 40px;
+  }
+
+  /* Room Node */
+  .tree-room-node {
+    padding: 8px;
+  }
+
+  /* Room Info */
+  .room-info {
+    margin-right: 8px;
+  }
+
+  /* Actions */
+  .room-actions {
+    gap: 4px;
+    opacity: 1;
+  }
+
+  .room-actions .action-button {
+    padding: 0 8px;
+  }
+
+  /* Content Spacing */
+  .room-content {
+    gap: 8px;
+  }
+}
+
+/* Medium devices (tablets, 768px and down) */
+@media screen and (max-width: 768px) {
+  /* Tree Padding */
+  .ant-tree-list-holder-inner {
+    padding-right: 8px;
+  }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media screen and (min-width: 992px) {
+  .rooms-tree {
+    padding: 24px;
+  }
+
+  .tree-hotel-node,
+  .tree-room-node {
+    padding: 12px 16px;
+  }
+}
+
+/* ====================
+   2. Card Header Styles
+==================== */
+.dashboard-card .ant-card-head {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 0 16px;
+}
+
+@media (min-width: 576px) {
+  .dashboard-card .ant-card-head {
+    padding: 0 24px;
+  }
+}
+
+/* List Item Styles */
+.dashboard-card .ant-list-item {
+  padding: 12px;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  margin: 4px 0;
+}
+
+@media (min-width: 576px) {
+  .dashboard-card .ant-list-item {
+    padding: 16px;
+    margin: 8px 0;
+  }
+}
+
+.dashboard-card .ant-list-item:hover {
+  background-color: #fafafa;
+}
+
+/* ====================
+   8. Stays and Rooms Manager
+==================== */
+/* Tree Container */
+.rooms-tree {
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+}
+
+/* Tree Node Base */
+.common-list-item {
+  width: 100%;
+  min-height: 48px;
+  padding: 8px 16px;
+  margin: 4px 0;
+  border-radius: 8px;
+  background: white;
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+  animation: fadeInSlide 0.3s ease-out;
+}
+
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.common-list-item:hover {
+  background: #fafafa;
+  border-color: #e6e6e6;
+}
+
+/* Item Content Layout */
+.list-item-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Main Content Area */
+.item-main-content {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Item Info */
+.item-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Item Icon */
+.item-icon {
+  flex-shrink: 0;
+  font-size: 16px;
+  color: #1890ff;
+}
+
+/* Stay Level Styles */
+.tree-hotel-node .item-icon {
+  font-size: 18px;
+  color: #52c41a;
+}
+
+.tree-hotel-node .item-title {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* Actions Container */
+.list-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Action Buttons */
+.list-action-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  height: 32px !important;
+  padding: 0 12px !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  background: transparent !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.list-action-button::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: currentColor !important;
+  opacity: 0 !important;
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.list-action-button:hover::before {
+  opacity: 0.1 !important;
+}
+
+.list-action-button:active::before {
+  opacity: 0.2 !important;
+}
+
+.list-action-button .anticon {
+  font-size: 14px !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.list-action-button span {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* Add Button */
+.list-action-button.add-button {
+  color: #52c41a !important;
+  border: 1px solid currentColor !important;
+}
+
+/* Edit Button */
+.list-action-button.edit-button {
+  color: #1890ff !important;
+  border: 1px solid currentColor !important;
+}
+
+/* Delete Button */
+.list-action-button.delete-button {
+  color: #ff4d4f !important;
+  border: 1px solid currentColor !important;
+}
+
+/* Responsive Styles */
+@media (max-width: 576px) {
+  .rooms-tree {
+    padding: 12px;
+  }
+
+  .common-list-item {
+    padding: 8px 12px;
+    min-height: 40px;
+  }
+
+  .list-item-content {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .list-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .list-action-button {
+    height: 28px !important;
+    padding: 0 8px !important;
+    font-size: 12px !important;
+  }
+
+  .list-action-button .anticon {
+    font-size: 12px;
+  }
+
+  .item-title {
+    font-size: 13px;
+  }
+
+  .tree-hotel-node .item-title {
+    font-size: 14px;
+  }
+}
+/* List Item Base */
+.ant-list-item {
+  padding: 16px !important;
+  transition: all 0.3s ease;
+  border-radius: 8px !important;
+  background: #fff;
+  border: 1px solid #f0f0f0 !important;
+  margin: 8px 0 !important;
+}
+
+.ant-list-item:hover {
+  background: #fafafa;
+  border-color: #e6e6e6 !important;
+}
+
+/* List Item Layout */
+.list-item-content {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Main Content */
+.item-main-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Item Info */
+.item-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Title */
+.item-title {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+/* Commission Tag */
+.commission-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  margin: 0 !important;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Actions Container */
+.list-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Action Button Base */
+.list-action-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  height: 32px !important;
+  padding: 0 12px !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  transition: all 0.3s ease !important;
+}
+
+.list-action-button .anticon {
+  font-size: 14px;
+}
+
+/* Responsive Styles */
+@media (max-width: 576px) {
+  .ant-list-item {
+    padding: 12px !important;
+    margin: 4px 0 !important;
+  }
+
+  .list-item-content {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .item-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .item-title {
+    font-size: 13px;
+    width: 100%;
+  }
+
+  .list-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .list-action-button {
+    height: 28px !important;
+    padding: 0 8px !important;
+    font-size: 12px !important;
+  }
+
+  .list-action-button .anticon {
+    font-size: 12px;
+  }
+}
+
+/* Common List Styles for Rooms and Other Items */
+.common-list-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  margin: 8px 0;
+  transition: all 0.3s ease;
+}
+
+.common-list-item:hover {
+  background: #fafafa;
+  border-color: #e6e6e6;
+}
+
+/* Common button styles */
+.action-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  border-radius: 6px !important;
+  transition: all 0.3s ease !important;
+  border: 1px solid transparent !important;
+}
+
+.action-button .anticon {
+  font-size: 14px;
+}
+
+/* Edit button styles */
+.edit-button {
+  color: #1890ff !important;
+  border-color: #1890ff !important;
+}
+
+.edit-button:hover {
+  color: #fff !important;
+  background: #1890ff !important;
+}
+
+/* Delete button styles */
+.delete-button {
+  color: #ff4d4f !important;
+  border-color: #ff4d4f !important;
+}
+
+.delete-button:hover {
+  color: #fff !important;
+  background: #ff4d4f !important;
+}
+
+/* Add button styles */
+.add-button {
+  color: #52c41a !important;
+  border-color: #52c41a !important;
+  font-weight: 500 !important;
+}
+
+.add-button:hover {
+  color: #fff !important;
+  background: #52c41a !important;
+}
+
+/* ====================
+   7. Modal Styles
+==================== */
+/* Modal Base */
+.ant-modal {
+  width: 500px !important;
+  top: 20px;
+}
+
+.ant-modal-content {
+  padding: 24px !important;
+  border-radius: 8px;
+}
+
+.ant-modal-header {
+  margin-bottom: 24px !important;
+  padding: 0 !important;
+}
+
+.ant-modal-body {
+  padding: 0 !important;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+.ant-modal-footer {
+  margin-top: 24px !important;
+  padding: 0 !important;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Modal Form */
+.modal-form {
+  max-width: 100%;
+  padding: 0;
+}
+
+.modal-form .ant-form-item {
+  margin-bottom: 24px;
+}
+
+.modal-form .ant-input {
+  height: 40px;
+}
+
+/* Modal Buttons */
+.modal-button {
+  min-width: 100px !important;
+  height: 36px !important;
+  border-radius: 6px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Button Variants */
+.modal-button.primary {
+  color: #e6e6e6 !important;
+  border-color: #52c41a !important;
+}
+
+.modal-button.primary:hover:not(:disabled) {
+  color: #fff !important;
+  background: #52c41a !important;
+}
+
+.modal-button.primary:disabled {
+  color: #d9d9d9 !important;
+  border-color: #d9d9d9 !important;
+  background: #f5f5f5 !important;
+}
+
+.modal-button.secondary {
+  color: #8c8c8c !important;
+  border-color: #8c8c8c !important;
+}
+
+.modal-button.secondary:hover {
+  color: #fff !important;
+  background: #8c8c8c !important;
+}
+
+/* Button Animation */
+.modal-button:hover .anticon {
+  animation: buttonIconScale 0.3s ease;
+}
+
+@keyframes buttonIconScale {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* Responsive Modal */
+@media (max-width: 576px) {
+  .ant-modal {
+    width: 90% !important;
+    margin: 0 auto !important;
+  }
+
+  .ant-modal-content {
+    padding: 16px !important;
+  }
+
+  .ant-modal-header {
+    margin-bottom: 16px !important;
+  }
+
+  .ant-modal-footer {
+    margin-top: 16px !important;
+  }
+
+  .modal-form .ant-form-item {
+    margin-bottom: 16px;
+  }
+
+  .modal-button {
+    min-width: 80px !important;
+    height: 32px !important;
+  }
+}
+
+/* General Spacing */
+.dashboard-card .ant-space {
+  width: 100%;
+}
+
+/* Custom scrollbar */
+.dashboard-card .ant-list {
+  scrollbar-width: thin;
+  scrollbar-color: #d9d9d9 #ffffff;
+  padding: 8px;
+}
+
+.dashboard-card .ant-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dashboard-card .ant-list::-webkit-scrollbar-track {
+  background: #ffffff;
+}
+
+.dashboard-card .ant-list::-webkit-scrollbar-thumb {
+  background-color: #d9d9d9;
+  border-radius: 3px;
+}
+
+/* Modal responsive styles */
+@media (max-width: 575px) {
+  .ant-modal {
+    max-width: 90vw !important;
+    margin: 8px auto !important;
+  }
+  
+  .ant-modal-content {
+    padding: 16px !important;
+  }
+  
+  .ant-modal-header {
+    padding: 0 0 16px 0 !important;
+  }
+  
+  .ant-modal-body {
+    padding: 16px 0 !important;
+  }
+  
+  .ant-modal-footer {
+    padding: 16px 0 0 0 !important;
+    margin-top: 8px !important;
+  }
+}
+
+/* Loading State */
+.dashboard-card .ant-spin {
+  margin: 24px 0;
+}
