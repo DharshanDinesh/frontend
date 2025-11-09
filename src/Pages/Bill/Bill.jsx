@@ -10,7 +10,16 @@ import {
   Radio,
   Row,
   Select,
+  Space,
 } from "antd";
+import {
+  CalendarOutlined,
+  DollarOutlined,
+  BankOutlined,
+  CalculatorOutlined,
+  ClearOutlined,
+  SaveOutlined,
+} from '@ant-design/icons';
 import { useState } from "react";
 import "./Bill.css";
 import dayjs from "dayjs";
@@ -218,55 +227,73 @@ export function Bill() {
   }
   return (
     <div className="bill_container">
-      <div className="bill_container_title">Create Entry</div>
-      <Form form={form} name="dynamic_rule">
-        <FiledContainer
-          title={"Booking Details"}
-          fields={bookingDetails}
-          handleChangeInFileds={handleChangeInFileds}
-          findOptions={findOptions}
-          id={"bookingDetails"}
-        />
-        <FiledContainer
-          title={"Income Details"}
-          fields={amountDetails}
-          handleChangeInFileds={handleChangeInFileds}
-          findOptions={findOptions}
-          id={"amountDetails"}
-        />
-        <FiledContainer
-          title={"Account Details"}
-          fields={accountDetails}
-          handleChangeInFileds={handleChangeInFileds}
-          findOptions={findOptions}
-          id={"accountDetails"}
-        />
-        <FiledContainer
-          title={"Calculation Details"}
-          fields={calculationDetails}
-          handleChangeInFileds={handleChangeInFileds}
-          findOptions={findOptions}
-          id={"calculationDetails"}
-        />
-        <Row justify="end" align="bottom" gutter={[16, 16]}>
-          <Col>
-            <Button type="primary" onClick={handleCalculate}>
-              Calculate
-            </Button>
-          </Col>
-          <Col>
-            <Button type="primary" onClick={handleClearForm}>
-              Clear
-            </Button>
-          </Col>
+      <h2 className="bill_container_title">Income Entry</h2>
+      <Form 
+        form={form} 
+        name="dynamic_rule"
+        layout="vertical"
+        size="small"
+      >
+        <div className="bill_sections_container">
+          <FiledContainer
+            title={"Booking Details"}
+            icon={<CalendarOutlined />}
+            fields={bookingDetails}
+            handleChangeInFileds={handleChangeInFileds}
+            findOptions={findOptions}
+            id={"bookingDetails"}
+          />
+          <FiledContainer
+            title={"Income Details"}
+            icon={<DollarOutlined />}
+            fields={amountDetails}
+            handleChangeInFileds={handleChangeInFileds}
+            findOptions={findOptions}
+            id={"amountDetails"}
+          />
+          <FiledContainer
+            title={"Account Details"}
+            icon={<BankOutlined />}
+            fields={accountDetails}
+            handleChangeInFileds={handleChangeInFileds}
+            findOptions={findOptions}
+            id={"accountDetails"}
+          />
+          <FiledContainer
+            title={"Calculation Details"}
+            icon={<CalculatorOutlined />}
+            fields={calculationDetails}
+            handleChangeInFileds={handleChangeInFileds}
+            findOptions={findOptions}
+            id={"calculationDetails"}
+          />
+        </div>
+        
+        <div className="bill_action_buttons">
+          <Button 
+            icon={<CalculatorOutlined />}
+            type="primary" 
+            onClick={handleCalculate}
+          >
+            Calculate
+          </Button>
+          <Button 
+            icon={<ClearOutlined />}
+            onClick={handleClearForm}
+          >
+            Clear
+          </Button>
           {isSubmitEnabled && (
-            <Col>
-              <Button type="primary" loading={loading} onClick={handleSubmit}>
-                Submit
-              </Button>
-            </Col>
+            <Button 
+              icon={<SaveOutlined />}
+              type="primary" 
+              loading={loading} 
+              onClick={handleSubmit}
+            >
+              Submit
+            </Button>
           )}
-        </Row>
+        </div>
       </Form>
     </div>
   );
@@ -274,6 +301,7 @@ export function Bill() {
 
 const FiledContainer = ({
   title,
+  icon,
   fields,
   handleChangeInFileds,
   findOptions,
@@ -286,14 +314,32 @@ const FiledContainer = ({
         orientationMargin="0"
         className="bill_container_divider_container"
       >
-        <div className="bill_container_divider_title">{title}</div>
+        <div className="bill_container_divider_title">
+          {icon && <span className="section-icon">{icon}</span>}
+          {title}
+        </div>
       </Divider>
-      <Row justify="start" align={"middle"} gutter={[16, 0]}>
+      <Row 
+        gutter={[16, 8]} 
+        className="fields-row"
+      >
         {fields.map((field) => {
+          // Determine column width based on field type
+          let colSpan = 6; // default 4 columns
+          if (field.type === "dateRangePicker") colSpan = 8; // wider for date ranges
+          else if (field.type === "multidropDown") colSpan = 12; // half width for multi-select
+          else if (field.type === "radio") colSpan = 8; // wider for radio groups
           return (
-            <Col xs={24} sm={12} md={8} lg={6} span={6} a key={field.name}>
-              <div className="bill_form_field_label">{field.name}</div>
-              <div>
+            <Col 
+              xs={24} 
+              sm={12} 
+              md={12}
+              lg={colSpan}
+              xl={colSpan}
+              key={field.name}
+            >
+              <div className="bill_form_field">
+                <div className="bill_form_field_label">{field.name}</div>
                 <RenderFiled
                   field={field}
                   handleChangeInFileds={handleChangeInFileds}

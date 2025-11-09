@@ -10,7 +10,7 @@ export const useProvider = () => {
         ui: {
             isSideNaveClosed: true,
             currentPage: "",
-            isLoggedIn: sessionStorage.getItem("isLoggedIn"),
+            isLoggedIn: true,
         },
     };
     function reducer(store, action) {

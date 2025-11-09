@@ -1,39 +1,132 @@
 .bill_container {
-    margin: 1.5rem;
+    max-width: 100%;
+    margin: 1rem auto;
+    padding: 0 1rem;
+    background: #fff;
+    height: calc(100vh - 2rem);
+    display: flex;
+    flex-direction: column;
 }
 
 .bill_container_title {
     margin-bottom: 1rem;
-    font-size: 2rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1f1f1f;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #f0f0f0;
 }
 
 .bill_form_field_label {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
     font-weight: 500;
+    color: #262626;
+    font-size: 0.85rem;
 }
 
 .bill_container_divider_title {
-    font-weight: 500;
-    font-size: 1.25rem;
-    color: #001529 !important
+    font-weight: 600;
+    font-size: 1rem;
+    color: #1677ff !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .bill_container_section {
-    border: 1px solid #9c9c9c;
-    border-radius: 1.4rem;
-    padding: 0.5rem 1.5rem 0.5rem 1.5rem;
-    margin-bottom: 0.5rem;
+    background: #ffffff;
+    border: 1px solid #e8e8e8;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+
+.bill_container_section:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 
 .bill_container_divider_container {
-    margin: 0.5rem 0rem !important;
+    margin: 0.5rem 0 0.75rem 0 !important;
+    border-color: #f0f0f0;
+    min-width: unset !important;
 }
 
 .bill_container_result {
-    text-decoration: underline;
-    text-decoration-color: #1677ff;
-    text-decoration-thickness: 2px;
     color: #1677ff;
-    font-weight: bold;
-    font-size: 1.25rem;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 0.25rem 0;
+    border-bottom: 2px solid #1677ff;
+}
+
+/* Compact form styles */
+.bill_form_field {
+    margin-bottom: 0.75rem;
+}
+
+/* Make form controls more compact */
+.bill_form_field :global(.ant-input),
+.bill_form_field :global(.ant-select-selector),
+.bill_form_field :global(.ant-picker),
+.bill_form_field :global(.ant-input-number) {
+    height: 32px !important;
+    padding: 4px 8px !important;
+}
+
+.bill_form_field :global(.ant-radio-group) {
+    line-height: 32px !important;
+}
+
+/* Sections container with scroll */
+.bill_sections_container {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+    margin-right: -0.5rem;
+}
+
+/* Grid adjustments */
+.fields-row {
+    margin: 0 -8px !important;
+}
+
+.fields-row > div {
+    padding: 0 8px !important;
+}
+
+/* Action buttons container - fixed at bottom */
+.bill_action_buttons {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background: #fafafa;
+    border-radius: 0.5rem;
+    justify-content: flex-end;
+    align-items: center;
+    border: 1px solid #f0f0f0;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .bill_container_section {
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .bill_container {
+        margin: 0.5rem;
+        padding: 0 0.5rem;
+        height: calc(100vh - 1rem);
+    }
+    
+    .bill_container_title {
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+    }
 }

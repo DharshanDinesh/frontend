@@ -12,7 +12,7 @@ import { useContext } from "react";
 import { ContextStore } from "./Provider";
 
 export function App() {
-  const router = ({ isAuthenticated = false }) => {
+  const router = ({ isAuthenticated = true }) => {
     return createBrowserRouter([
       {
         path: "/",

@@ -15,30 +15,29 @@ import { useNavigate } from "react-router-dom";
 import { action } from "../../useProvider";
 const { Sider: Siders } = Layout;
 
-export function SideBar() {
-  const { store, dispatch } = useContext(ContextStore);
+export function SideBar({ collapsed, setCollapsed, isMobile }) {
+  const { store } = useContext(ContextStore);
   const { ui } = store;
   const navigate = useNavigate();
 
   const onClick = (e) => {
     navigate(`/${e.key}`);
-  };
-
-  const handleNavBarClick = () => {
-    dispatch({
-      type: action.SET_UI_NAV_STATUS,
-      payload: !ui.isSideNaveClosed,
-    });
+    if (isMobile) setCollapsed(true);
   };
 
   return (
     <Siders
-      collapsed={ui.isSideNaveClosed}
+      collapsed={collapsed}
       collapsible
-      onCollapse={(value) => handleNavBarClick(value)}
+      trigger={null}
+      breakpoint="md"
+      width={200}
+      collapsedWidth={isMobile ? 0 : 80}
+      className={`custom-sider${isMobile && !collapsed ? ' custom-sider-mobile-open' : ''}`}
+      style={{ position: isMobile ? 'fixed' : 'relative', zIndex: 1002, height: '100vh', left: 0, top: 0 }}
     >
       <div className="demo-logo-vertical">
-        {ui.isSideNaveClosed ? "LPHS" : "Le Pondy Home Stay"}
+        {collapsed ? "LPHS" : "Le Pondy Home Stay"}
       </div>
       <Menu
         theme="dark"

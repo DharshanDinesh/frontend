@@ -1,23 +1,37 @@
 import { Outlet } from "react-router";
 import "./Container.css";
-import { Layout } from "antd";
-import { SideBar } from "../Sider/Sider";
+import { Layout, ConfigProvider } from "antd";
+
 import { Header } from "../Header/Header";
 
 const { Content } = Layout;
 
 export const Container = () => {
   return (
-    <Layout>
-      <SideBar />
-      <Layout>
-        <Header />
-        <Content>
-          <div style={{ minHeight: window.innerHeight }}>
-            <Outlet />
-          </div>
-        </Content>
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: '#1677ff',
+          borderRadius: 6,
+        },
+        components: {
+          Layout: {
+            bodyBg: '#f5f5f5',
+            headerBg: '#fff',
+          }
+        }
+      }}
+    >
+      <Layout className="app-container">
+        <Layout className="main-layout main-layout-mobile">
+          <Header />
+          <Content className="main-content">
+            <div className="content-wrapper">
+              <Outlet />
+            </div>
+          </Content>
+        </Layout>
       </Layout>
-    </Layout>
+    </ConfigProvider>
   );
 };
