@@ -1,34 +1,30 @@
 /* eslint-disable no-unused-vars */
 import { Container } from "./Components/Container/Container";
-import {
-  createBrowserRouter,
-  Navigate,
-  RouterProvider,
-} from "react-router-dom";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 import "./App.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { ContextStore } from "./Provider";
+import { LoginForm } from "./Pages/Login/Login";
 
 export function App() {
-  const router = ({ isAuthenticated = true }) => {
+  const { store } = useContext(ContextStore);
+  const isAuthenticated = store?.ui?.isLoggedIn;
+
+  const router = useMemo(() => {
     return createBrowserRouter([
       {
+        path: "/login",
+        element: isAuthenticated ? <Navigate to="/home" /> : <LoginForm />
+      },
+      {
         path: "/",
-        element: <Container />,
+        element: isAuthenticated ? <Container /> : <Navigate to="/login" />,
         children: [
           {
-            path: "/",
-            lazy: async () => {
-              if (!isAuthenticated) {
-                return { Component: () => <Navigate to="/login" /> };
-              } else {
-                return {
-                  Component: () => <Navigate to="/home" />,
-                };
-              }
-            },
+            path: "",
+            element: <Navigate to="/home" />
           },
           {
             path: "/home",
@@ -71,6 +67,16 @@ export function App() {
               return { Component: Dashboard };
             },
           },
+           {
+            path: "/dashboardv2",
+            lazy: async () => {
+              if (!isAuthenticated) {
+                return { Component: () => <Navigate to="/login" /> };
+              }
+              let { DashboardV2 } = await import("./Pages/DashboardV2/DashboardV2");
+              return { Component: DashboardV2 };
+            },
+          },
           {
             path: "/customer",
             lazy: async () => {
@@ -102,14 +108,11 @@ export function App() {
         },
       },
     ]);
-  };
-  const { store } = useContext(ContextStore);
+  }, [isAuthenticated]);
   return (
     <>
       <ToastContainer />
-      <RouterProvider
-        router={router({ isAuthenticated: store?.ui?.isLoggedIn })}
-      />
+      <RouterProvider router={router} />
     </>
   );
 }

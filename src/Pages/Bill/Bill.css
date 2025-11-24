@@ -1,132 +1,120 @@
 .bill_container {
-    max-width: 100%;
-    margin: 1rem auto;
-    padding: 0 1rem;
-    background: #fff;
-    height: calc(100vh - 2rem);
-    display: flex;
-    flex-direction: column;
+  padding: 24px;
+  background: #ffffff;
+  min-height: 100vh;
 }
 
 .bill_container_title {
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #1f1f1f;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid #f0f0f0;
+  font-size: 24px;
+  color: #1677ff;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f0f0;
 }
 
-.bill_form_field_label {
-    margin-bottom: 0.25rem;
-    font-weight: 500;
-    color: #262626;
-    font-size: 0.85rem;
-}
-
-.bill_container_divider_title {
-    font-weight: 600;
-    font-size: 1rem;
-    color: #1677ff !important;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.bill_container_section {
-    background: #ffffff;
-    border: 1px solid #e8e8e8;
-    border-radius: 0.5rem;
-    padding: 0.75rem;
-    margin-bottom: 0.75rem;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
-}
-
-.bill_container_section:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-.bill_container_divider_container {
-    margin: 0.5rem 0 0.75rem 0 !important;
-    border-color: #f0f0f0;
-    min-width: unset !important;
-}
-
-.bill_container_result {
-    color: #1677ff;
-    font-weight: 600;
-    font-size: 1rem;
-    padding: 0.25rem 0;
-    border-bottom: 2px solid #1677ff;
-}
-
-/* Compact form styles */
-.bill_form_field {
-    margin-bottom: 0.75rem;
-}
-
-/* Make form controls more compact */
-.bill_form_field :global(.ant-input),
-.bill_form_field :global(.ant-select-selector),
-.bill_form_field :global(.ant-picker),
-.bill_form_field :global(.ant-input-number) {
-    height: 32px !important;
-    padding: 4px 8px !important;
-}
-
-.bill_form_field :global(.ant-radio-group) {
-    line-height: 32px !important;
-}
-
-/* Sections container with scroll */
 .bill_sections_container {
-    flex: 1;
-    overflow-y: auto;
-    padding-right: 0.5rem;
-    margin-right: -0.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-/* Grid adjustments */
-.fields-row {
-    margin: 0 -8px !important;
+.bill_section {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
 }
 
-.fields-row > div {
-    padding: 0 8px !important;
+.section_title {
+  font-size: 18px;
+  color: #262626;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-/* Action buttons container - fixed at bottom */
-.bill_action_buttons {
-    display: flex;
-    gap: 0.75rem;
-    margin-top: 0.75rem;
-    padding: 0.75rem;
-    background: #fafafa;
-    border-radius: 0.5rem;
-    justify-content: flex-end;
-    align-items: center;
-    border: 1px solid #f0f0f0;
-    position: sticky;
-    bottom: 0;
-    z-index: 10;
+
+
+
+
+
+
+/* Calculation Results */
+.calculation-box {
+  height: 100%;
+  transition: all 0.3s ease;
 }
 
-/* Responsive adjustments */
-@media (max-width: 1200px) {
-    .bill_container_section {
-        padding: 0.75rem;
-    }
+.calculation-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+/* Section Cards */
+.section-card {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Custom Colors for Different Sections */
+.tax-section {
+  background-color: #f0f7ff;
+  border: 1px solid #91caff;
+}
+
+.commission-section {
+  background-color: #f6ffed;
+  border: 1px solid #b7eb8f;
+}
+
+.deductions-section {
+  background-color: #fff7e6;
+  border: 1px solid #ffd591;
+}
+
+.profit-section {
+  background-color: #f9f0ff;
+  border: 1px solid #d3adf7;
+}
+
+/* Responsive Adjustments */
 @media (max-width: 768px) {
-    .bill_container {
-        margin: 0.5rem;
-        padding: 0 0.5rem;
-        height: calc(100vh - 1rem);
-    }
-    
-    .bill_container_title {
-        font-size: 1.25rem;
-        margin-bottom: 0.75rem;
-    }
+  .bill_container {
+    padding: 16px;
+  }
+  
+  .calculation-box {
+    margin-bottom: 16px;
+  }
+  
+  .ant-form-item {
+    margin-bottom: 16px;
+  }
+}
+
+/* Toast Styling */
+.msg-container {
+  padding: 8px;
+}
+
+.msg-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.msg-description {
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Submit Button Section */
+.submit-section {
+  position: sticky;
+  bottom: 0;
+  background: #ffffff;
+  padding: 16px 24px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+  z-index: 100;
 }

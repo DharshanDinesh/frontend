@@ -15,8 +15,12 @@ export const LoginForm = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    sessionStorage.clear();
-  });
+    // Only clear session if not already logged in
+    const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+    if (!isLoggedIn) {
+      sessionStorage.clear();
+    }
+  }, []);
 
   const Msg = ({ title, text }) => {
     return (
@@ -62,20 +66,29 @@ export const LoginForm = () => {
         `${import.meta.env.VITE_API_URL}/login/check`,
         values
       );
-      setLoading(false);
 
       if (response.status === 200) {
-        dispatch({ type: "SET_LOGGED_IN" });
-        navigate("/home");
-        toastSuccess();
-      }
+        // First set the session storage
+        sessionStorage.setItem('isLoggedIn', 'true');
+        sessionStorage.setItem('user', JSON.stringify(values));
 
-      if (!response.status === 200) {
-        throw new Error("User not found");
+        // Then update the context state
+        dispatch({ type: "SET_LOGGED_IN" });
+
+        // Show success toast
+        toastSuccess();
+
+        // Use Promise to ensure state is updated
+        await Promise.resolve();
+
+        // Finally navigate
+        navigate("/home", { replace: true });
       }
     } catch (error) {
-      console.log(error);
-      toastError();
+      console.error("Login error:", error);
+      toastError("Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 

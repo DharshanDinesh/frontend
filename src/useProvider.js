@@ -10,7 +10,7 @@ export const useProvider = () => {
         ui: {
             isSideNaveClosed: true,
             currentPage: "",
-            isLoggedIn: true,
+            isLoggedIn: sessionStorage.getItem("isLoggedIn") === "true",
         },
     };
     function reducer(store, action) {
@@ -20,13 +20,16 @@ export const useProvider = () => {
             case "SET_CURRENT_PAGE":
                 return { ...store, ui: { ...store.ui, currentPage: action.payload } };
             case "SET_LOGGED_IN": {
-                sessionStorage.setItem("isLoggedIn", true)
+                sessionStorage.setItem("isLoggedIn", "true");
                 return { ...store, ui: { ...store.ui, isLoggedIn: true } };
             }
             case "SET_LOGGED_OUT": {
+                sessionStorage.removeItem("isLoggedIn");
                 sessionStorage.clear();
                 return { ...store, ui: { ...store.ui, isLoggedIn: false } };
             }
+            default:
+                return store;
         }
     }
 

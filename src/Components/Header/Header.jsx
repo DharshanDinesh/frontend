@@ -41,12 +41,18 @@ export function Header() {
   );
 
   const handleLogout = () => {
+    // First dispatch the logout action
     dispatch({ type: action.SET_LOGGED_OUT });
+
+    // Show logout message
     toast.success(<Msg title="Logging out" text="Logout Successful" />, {
       position: "top-right",
       autoClose: 2000,
       theme: "colored",
     });
+
+    // Navigate to login page
+    navigate("/login", { replace: true });
   };
 
   const userMenuItems = [
@@ -68,6 +74,7 @@ export function Header() {
     { key: "income", icon: <DollarOutlined />, label: "Income" },
     { key: "expense", icon: <ShoppingCartOutlined />, label: "Expense" },
     { key: "dashboard", icon: <RadarChartOutlined />, label: "Dashboard" },
+    { key: "dashboardv2", icon: <RadarChartOutlined />, label: "Dashboard V2" },
     { key: "customer", icon: <SmileOutlined />, label: "Customer Details" },
   ];
 
