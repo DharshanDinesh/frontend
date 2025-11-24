@@ -23,13 +23,52 @@ export function DashboardV2() {
   const { RangePicker } = DatePicker;
   const { Text } = Typography;
 
-  // State management
+  // State management for filters
   const [filterIncome, setFilterIncome] = useState(null);
   const [filter1, setFilter1] = useState([]);
   const [filter2, setFilter2] = useState([]);
   const [filter3, setFilter3] = useState(null);
   const [dateRange, setDateRange] = useState([]);
   const [dateRangeEntry, setDateRangeEntry] = useState([]);
+  
+  // State management for pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  // Build query parameters for API call
+  const buildQueryParams = () => {
+    const params = new URLSearchParams();
+    params.append('page', currentPage.toString());
+    params.append('limit', pageSize.toString());
+    
+    if (filterIncome !== null) {
+      params.append('isIncome', filterIncome.toString());
+    }
+    
+    if (filter1.length > 0) {
+      filter1.forEach(stay => params.append('stay_name', stay));
+    }
+    
+    if (filter2.length > 0) {
+      filter2.forEach(source => params.append('booking_from', source));
+    }
+    
+    if (filter3 !== null) {
+      params.append('gst_transction', filter3.toString());
+    }
+    
+    if (dateRangeEntry.length === 2) {
+      params.append('startDateEntry', dateRangeEntry[0]);
+      params.append('endDateEntry', dateRangeEntry[1]);
+    }
+    
+    if (dateRange.length === 2) {
+      params.append('startDateBooking', dateRange[0]);
+      params.append('endDateBooking', dateRange[1]);
+    }
+    
+    return params.toString();
+  };
 
   // Fetch data
   const sourceInfo = useQuery({
@@ -43,15 +82,20 @@ export function DashboardV2() {
   });
 
   const billInfo = useQuery({
-    queryKey: ["billv2"],
-    queryFn: () => helperApi("billv2"),
-    initialData: { items: [], totalNetProfit: 0, count: 0 },
+    queryKey: ["billv2", currentPage, pageSize, filterIncome, filter1, filter2, filter3, dateRange, dateRangeEntry],
+    queryFn: () => {
+      const queryString = buildQueryParams();
+      return helperApi(`billv2?${queryString}`);
+    },
+    initialData: { items: [], totalNetProfit: 0, count: 0, page: 1, limit: 10, totalPages: 0 },
+    keepPreviousData: true, // Keep previous data while fetching new data
   });
 
   // Get data values
   const billItems = billInfo?.data?.items ?? [];
   const totalNetProfit = billInfo?.data?.totalNetProfit ?? 0;
   const totalCount = billInfo?.data?.count ?? 0;
+  const totalPages = billInfo?.data?.totalPages ?? 0;
 
   // Dropdown options
   function findOptions(key) {
@@ -152,6 +196,7 @@ export function DashboardV2() {
       key: "booking_details",
       dataIndex: "booking_details",
       render: (_, record) => {
+        const entryDate = formatString(record.date_of_entry);
         const tenant = formatString(record.tenant_name);
         const stay = formatString(record.stay_name);
         const room = formatString(record.room_no);
@@ -160,11 +205,12 @@ export function DashboardV2() {
         
         return (
           <div style={cellBoxStyle}>
+            <div style={rowStyle}><span style={labelStyle}>Date of Entry:</span><span style={valueStyle}>{entryDate}</span></div>
             <div style={rowStyle}><span style={labelStyle}>Tenant:</span><span style={valueStyle}>{tenant}</span></div>
             <div style={rowStyle}><span style={labelStyle}>Stay:</span><span style={valueStyle}>{stay}</span></div>
             <div style={rowStyle}><span style={labelStyle}>Room No:</span><span style={valueStyle}>{room}</span></div>
             <div style={rowStyle}><span style={labelStyle}>Source:</span><span style={valueStyle}>{source}</span></div>
-            <div style={rowStyle}><span style={labelStyle}>Dates:</span><span style={valueStyle}>{dates}</span></div>
+            <div style={rowStyle}><span style={labelStyle}>Booking Dates:</span><span style={valueStyle}>{dates}</span></div>
           </div>
         );
       },
@@ -285,45 +331,20 @@ export function DashboardV2() {
     },
   ];
 
-  // Chart Data
-  const prepareChartData = () => {
-    return billItems
-      .map((item) => ({
-        date: dayjs(item.date).format("YYYY-MM-DD"),
-        value: item.isIncome ? item.final_amount : -item.total_expense,
-        type: item.isIncome ? "Income" : "Expense",
-      }))
-      .sort((a, b) => dayjs(a.date).diff(dayjs(b.date)));
+
+  // Handle pagination change
+  const handleTableChange = (pagination) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
   };
 
-  // Filter Table Data
-  const filteredTable = billItems.filter((item) => {
-    let match = true;
+  // Reset to page 1 when filters change
+  const handleFilterChange = (filterSetter) => (value) => {
+    setCurrentPage(1);
+    filterSetter(value);
+  };
 
-    if (filterIncome !== null) match = match && item.isIncome === filterIncome;
-    if (filter1.length > 0) match = match && filter1.includes(item.stay_name);
-    if (filter2.length > 0) match = match && filter2.includes(item.Booking_From);
-    if (filter3 !== null) match = match && item.gst_transction === filter3;
-
-    if (dateRange.length === 2) {
-      const itemDate = dayjs(item.date, "DD/MM/YYYY");
-      match =
-        match &&
-        itemDate.isSameOrAfter(dayjs(dateRange[0], "DD/MM/YYYY")) &&
-        itemDate.isSameOrBefore(dayjs(dateRange[1], "DD/MM/YYYY"));
-    }
-
-    if (dateRangeEntry.length === 2) {
-      const entryDate = dayjs(item.createdAt, "DD/MM/YYYY");
-      match =
-        match &&
-        entryDate.isSameOrAfter(dayjs(dateRangeEntry[0], "DD/MM/YYYY")) &&
-        entryDate.isSameOrBefore(dayjs(dateRangeEntry[1], "DD/MM/YYYY"));
-    }
-
-    return match;
-  });
-
+  // Handle Excel Export
   // Handle Excel Export
   const handleExport = async () => {
     const workbook = new ExcelJS.Workbook();
@@ -332,11 +353,22 @@ export function DashboardV2() {
     const headers = fields.map((field) => field.name);
     worksheet.addRow(headers);
 
-    filteredTable.forEach((item) => {
+    billItems.forEach((item) => {
       const row = fields.map((field) => {
         let val = item[field.apiKey];
+        console.log('Exporting field:', field.apiKey, 'Value:', val);
+        // Special handling for 'creditedAccounts' field
+        if (field.apiKey === 'creditedAccounts' && Array.isArray(val)) {
+          // Format as "Account1: ₹Amount1, Account2: ₹Amount2"
+          return val.map(acc => {
+            // Defensive: handle possible missing or differently cased keys
+            const accountName = acc.account || acc.Account || '-';
+            const accountAmount = acc.amount != null ? `₹${formatINR(acc.amount)}` : (acc.Amount != null ? `₹${formatINR(acc.Amount)}` : '-');
+            return `${accountName}: ${accountAmount}`;
+          }).join('; '); // Use semicolon for clarity if commas in names
+        }
         if (typeof val === "boolean") return val ? "Yes" : "No";
-        if (Array.isArray(val)) return val.join(", ");
+        if (Array.isArray(val)) return val.map(v => (typeof v === 'object' ? JSON.stringify(v) : String(v))).join(", ");
         return val ?? "";
       });
       worksheet.addRow(row);
@@ -358,13 +390,14 @@ export function DashboardV2() {
             <Text strong style={{ fontSize: '13px', display: 'block', marginBottom: '4px' }}>Date Range (Entry)</Text>
             <RangePicker
               style={{ width: "100%", marginTop: 4 }}
-              onChange={(dates) =>
+              onChange={(dates) => {
+                setCurrentPage(1);
                 setDateRangeEntry(
                   dates
                     ? [dates[0].format("DD/MM/YYYY"), dates[1].format("DD/MM/YYYY")]
                     : []
-                )
-              }
+                );
+              }}
               format="DD/MM/YYYY"
             />
           </Col>
@@ -374,7 +407,7 @@ export function DashboardV2() {
               allowClear
               style={{ width: "100%", marginTop: 4 }}
               placeholder="Select type"
-              onChange={(val) => setFilterIncome(val ?? null)}
+              onChange={handleFilterChange(setFilterIncome)}
               options={[
                 { label: "Income", value: true },
                 { label: "Expense", value: false },
@@ -388,7 +421,7 @@ export function DashboardV2() {
               allowClear
               style={{ width: "100%", marginTop: 4 }}
               placeholder="Select stays"
-              onChange={setFilter1}
+              onChange={handleFilterChange(setFilter1)}
               options={findOptions("hotel")}
             />
           </Col>
@@ -399,7 +432,7 @@ export function DashboardV2() {
               allowClear
               style={{ width: "100%", marginTop: 4 }}
               placeholder="Select sources"
-              onChange={setFilter2}
+              onChange={handleFilterChange(setFilter2)}
               options={findOptions("Booking_From")}
             />
           </Col>
@@ -409,7 +442,7 @@ export function DashboardV2() {
               allowClear
               style={{ width: "100%", marginTop: 4 }}
               placeholder="Select GST"
-              onChange={(val) => setFilter3(val ?? null)}
+              onChange={handleFilterChange(setFilter3)}
               options={findOptions("GST")}
             />
           </Col>
@@ -417,13 +450,14 @@ export function DashboardV2() {
             <Text strong style={{ fontSize: '13px', display: 'block', marginBottom: '4px' }}>Booking Date Range</Text>
             <RangePicker
               style={{ width: "100%", marginTop: 4 }}
-              onChange={(dates) =>
+              onChange={(dates) => {
+                setCurrentPage(1);
                 setDateRange(
                   dates
                     ? [dates[0].format("DD/MM/YYYY"), dates[1].format("DD/MM/YYYY")]
                     : []
-                )
-              }
+                );
+              }}
               format="DD/MM/YYYY"
             />
           </Col>
@@ -522,7 +556,7 @@ export function DashboardV2() {
                 <Text strong style={{ fontSize: '16px' }}>Detailed Transactions</Text>
               </Col>
               <Col xs={24} sm={8} md={8} style={{ textAlign: 'right', marginTop: '8px' }}>
-                <Text type="secondary">{formatINR(filteredTable.length)} entries</Text>
+                <Text type="secondary">{formatINR(totalCount)} entries</Text>
               </Col>
             </Row>
           }
@@ -530,17 +564,21 @@ export function DashboardV2() {
           <div style={{ width: '100%', overflowX: 'auto' }}>
             <Table
               rowKey={(record) => record._id || record.id || record.date}
-              dataSource={filteredTable}
+              dataSource={billItems}
               columns={columns}
               scroll={{ x: 'max-content' }}
               size="small"
               pagination={{ 
-                pageSize: 10, 
+                current: currentPage,
+                pageSize: pageSize,
+                total: totalCount,
                 showSizeChanger: true, 
-                pageSizeOptions: [5, 10, 20, 50],
+                pageSizeOptions: [5, 10, 20, 50, 100],
                 responsive: true,
                 showTotal: (total, range) => `${range[0]}-${range[1]} of ${formatINR(total)} items`
               }}
+              onChange={handleTableChange}
+              loading={billInfo.isLoading || billInfo.isFetching}
               bordered
               className="dashboard-table-autoheight dashboard-table-dynamic-width"
               sticky
