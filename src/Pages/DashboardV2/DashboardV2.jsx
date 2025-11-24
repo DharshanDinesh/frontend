@@ -10,7 +10,7 @@ import {
   BankOutlined,
   BarChartOutlined,
 } from "@ant-design/icons";
-import "./Dashboard.css";
+import "./dashboard.css";
 import { useQuery } from "@tanstack/react-query";
 import { helperApi } from "../../Utils/API/helperAPI";
 import ExcelJS from "exceljs";
